@@ -1,0 +1,32 @@
+<view class="container">
+  <view wx:if="{{loading && list.length === 0}}" class="skeleton-list">
+    <view wx:for="{{[1,2,3]}}" wx:key="*this" class="skeleton-item">
+      <view class="skeleton-text"></view>
+      <view class="skeleton-sub"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{list.length > 0}}" class="list">
+    <view
+      wx:for="{{list}}"
+      wx:key="id"
+      class="list-item"
+      data-id="{{item.id}}"
+      bindtap="onItemTap"
+      bindlongpress="onLongPress"
+      hover-class="list-item-pressed"
+    >
+      <text class="item-quote">{{item.summary}}</text>
+      <view class="item-meta">
+        <text class="item-source">{{item.source}}</text>
+        <text class="item-time">{{item.timeText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <empty-state
+    wx:if="{{!loading && list.length === 0}}"
+    type="favorite"
+    bind:action="onGoHome"
+  ></empty-state>
+</view>

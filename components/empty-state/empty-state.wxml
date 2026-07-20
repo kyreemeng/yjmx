@@ -1,0 +1,8 @@
+<view class="empty-state">
+  <view class="empty-icon">
+    <app-icon name="{{displayIcon}}" color="#A78352" size="{{88}}"></app-icon>
+  </view>
+  <text class="empty-title">{{displayTitle}}</text>
+  <text class="empty-desc">{{displayDesc}}</text>
+  <view wx:if="{{displayBtn}}" class="empty-btn" bindtap="onAction">{{displayBtn}}</view>
+</view>

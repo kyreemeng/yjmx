@@ -1,0 +1,18 @@
+.container {
+  min-height: 100vh;
+  background: #FFF8F0;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.detail-header {
+  padding-top: 60rpx;
+  padding-bottom: 20rpx;
+}
+
+.detail-from {
+  font-size: 26rpx;
+  color: #8B7355;
+}

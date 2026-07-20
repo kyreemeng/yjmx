@@ -1,0 +1,138 @@
+/* 全局样式 */
+page {
+  --primary: #C41E1E;
+  --primary-dark: #A01818;
+  --secondary: #D4A853;
+  --bg-warm: #FFF8F0;
+  --bg-light: #FAFAFA;
+  --card: #FFFFFF;
+  --text-main: #2C1810;
+  --text-sub: #8B7355;
+  --text-gray: #6F6259;
+  --divider: #F0EDE8;
+  --success: #52C41A;
+  --warning: #FAAD14;
+
+  background-color: var(--bg-warm);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+view, text, button, input, scroll-view, swiper, cover-view {
+  box-sizing: border-box;
+}
+
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-warm);
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+/* 安全区底部 */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 通用按钮 */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border: none;
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+.btn-primary:active {
+  opacity: 0.9;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-sub);
+  border: 1rpx solid var(--divider);
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+}
+
+.btn-ghost::after {
+  border: none;
+}
+
+/* Toast 样式由微信统一提供，这里无需自定义 */
+
+/* 隐藏 */
+.hidden {
+  display: none !important;
+}
+
+/* 页面淡入 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 缩放回弹 */
+@keyframes scalePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.animate-pop {
+  animation: scalePop 200ms ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 300ms ease-in-out;
+}
+
+.skeleton-line,
+.skeleton-source,
+.skeleton-rank,
+.skeleton-text,
+.skeleton-sub {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line::after,
+.skeleton-source::after,
+.skeleton-rank::after,
+.skeleton-text::after,
+.skeleton-sub::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.72) 48%, transparent 76%);
+  transform: translateX(-100%);
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeletonShimmer {
+  to { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop,
+  .animate-fade-in,
+  .skeleton-line::after,
+  .skeleton-source::after,
+  .skeleton-rank::after,
+  .skeleton-text::after,
+  .skeleton-sub::after {
+    animation: none;
+  }
+}

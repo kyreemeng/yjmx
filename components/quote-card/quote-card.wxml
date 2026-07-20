@@ -1,0 +1,40 @@
+<view class="quote-card-wrap">
+  <view class="quote-card {{animate && (loading || !contentReady) ? 'is-leaving' : 'is-ready'}}" bindtap="onTapCard">
+    <view class="quote-content">
+      <text class="quote-text">{{quote.content || ''}}</text>
+    </view>
+    <view class="quote-source">
+      <text class="source-line">{{quote.source || '《毛泽东选集》'}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{showActions}}" class="action-bar {{loading ? 'is-disabled' : ''}}">
+    <view wx:if="{{showRefresh}}" class="action-btn refresh" catchtap="onRefresh" hover-class="action-hover">
+      <view class="action-icon {{animating && lastAction === 'refresh' ? 'animate-pop' : ''}}">
+        <app-icon name="refresh" color="#6F6259" size="{{48}}"></app-icon>
+      </view>
+      <text class="action-label">换一句</text>
+    </view>
+
+    <view class="action-btn like {{liked ? 'active' : ''}}" catchtap="onLike" hover-class="action-hover">
+      <view class="action-icon {{animating && lastAction === 'like' ? 'animate-pop' : ''}}">
+        <app-icon name="heart" color="{{liked ? '#C41E1E' : '#81766F'}}" size="{{48}}" filled="{{liked}}"></app-icon>
+      </view>
+      <text class="action-label">{{liked ? '已赞' : '点赞'}} {{quote.stat.total || 0}}</text>
+    </view>
+
+    <view class="action-btn favorite {{favorited ? 'active' : ''}}" catchtap="onFavorite" hover-class="action-hover">
+      <view class="action-icon {{animating && lastAction === 'favorite' ? 'animate-pop' : ''}}">
+        <app-icon name="star" color="{{favorited ? '#B78428' : '#81766F'}}" size="{{48}}" filled="{{favorited}}"></app-icon>
+      </view>
+      <text class="action-label">{{favorited ? '已收藏' : '收藏'}}</text>
+    </view>
+
+    <view class="action-btn share" catchtap="onShare" hover-class="action-hover">
+      <view class="action-icon {{animating && lastAction === 'share' ? 'animate-pop' : ''}}">
+        <app-icon name="share" color="#6F6259" size="{{48}}"></app-icon>
+      </view>
+      <text class="action-label">分享</text>
+    </view>
+  </view>
+</view>

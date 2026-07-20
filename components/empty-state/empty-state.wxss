@@ -1,0 +1,48 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 60rpx;
+}
+
+.empty-icon {
+  width: 128rpx;
+  height: 128rpx;
+  margin-bottom: 28rpx;
+  border-radius: 50%;
+  background: #FFF4E7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #2C1810;
+  margin-bottom: 12rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #8B7355;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 40rpx;
+}
+
+.empty-btn {
+  background: #FFFFFF;
+  color: #C41E1E;
+  border: 1rpx solid #C41E1E;
+  border-radius: 16rpx;
+  padding: 16rpx 48rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.empty-btn:active {
+  background: #FFF8F0;
+  transform: scale(0.98);
+}

@@ -1,0 +1,50 @@
+<view class="container">
+  <!-- 用户信息区 -->
+  <view class="user-header" bindtap="onTapHeader">
+    <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+    <text class="user-name">{{userInfo.nickName}}</text>
+    <text wx:if="{{!isLogin}}" class="user-tip">点击登录，收藏专属金句</text>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="menu-list">
+    <view class="menu-item" bindtap="onFavorites" hover-class="menu-item-pressed">
+      <view class="menu-left">
+        <view class="menu-icon">
+          <app-icon name="star" color="#B78428" size="{{40}}"></app-icon>
+        </view>
+        <text class="menu-label">金句收藏</text>
+      </view>
+      <view class="menu-right">
+        <text class="menu-count">{{favoriteCount}}条</text>
+        <app-icon name="chevronRight" color="#A79D96" size="{{30}}"></app-icon>
+      </view>
+    </view>
+
+    <view class="menu-item" bindtap="onLikes" hover-class="menu-item-pressed">
+      <view class="menu-left">
+        <view class="menu-icon">
+          <app-icon name="heart" color="#A04D43" size="{{40}}" filled="{{true}}"></app-icon>
+        </view>
+        <text class="menu-label">点赞记录</text>
+      </view>
+      <view class="menu-right">
+        <text class="menu-count">{{likeCount}}条</text>
+        <app-icon name="chevronRight" color="#A79D96" size="{{30}}"></app-icon>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view wx:if="{{isLogin}}" class="logout-area">
+    <button class="logout-btn" bindtap="onLogout">退出登录</button>
+  </view>
+
+  <!-- 登录弹窗 -->
+  <login-modal
+    show="{{showLoginModal}}"
+    bind:success="onLoginSuccess"
+    bind:fail="onLoginFail"
+    bind:close="onCloseLoginModal"
+  ></login-modal>
+</view>

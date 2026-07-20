@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "login-modal": "/components/login-modal/login-modal",
+    "empty-state": "/components/empty-state/empty-state"
+  },
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "navigationBarTitleText": "毛选金句排行"
+}

@@ -1,0 +1,23 @@
+<view wx:if="{{visible}}" class="poster-modal" bindtap="onClose">
+  <view class="poster-wrap" catchtap="preventBubble">
+    <view class="poster-title">生成分享卡片</view>
+    <view class="poster-canvas-wrap">
+      <canvas
+        type="2d"
+        id="posterCanvas"
+        class="poster-canvas"
+      ></canvas>
+      <view wx:if="{{generating}}" class="poster-loading">
+        <view class="loading-spinner"></view>
+        <text>生成卡片中...</text>
+      </view>
+    </view>
+
+    <view class="poster-actions">
+      <view class="poster-btn primary" bindtap="onSave">保存到相册</view>
+      <view class="poster-btn" bindtap="onShare">转发给朋友</view>
+    </view>
+
+    <view class="poster-close" bindtap="onClose">关闭</view>
+  </view>
+</view>

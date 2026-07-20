@@ -1,0 +1,106 @@
+<view class="container">
+  <view class="rank-header">
+    <text class="rank-title">毛选金句排行</text>
+  </view>
+
+  <!-- Tab 栏 -->
+  <view class="tab-bar">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab-item {{activeTab === item.key ? 'active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="onTabTap"
+    >
+      <text class="tab-label">{{item.label}}</text>
+    </view>
+    <view class="tab-indicator-track" style="transform: translateX({{activeTabIndex * 100}}%);">
+      <view class="tab-indicator"></view>
+    </view>
+  </view>
+
+  <template name="rankList">
+    <scroll-view
+      scroll-y
+      class="rank-scroll"
+      enable-back-to-top
+      refresher-enabled="{{true}}"
+      refresher-triggered="{{refreshing}}"
+      data-type="{{type}}"
+      bindrefresherrefresh="onRankRefresh"
+    >
+      <view wx:if="{{loading && list.length === 0}}" class="skeleton-list">
+        <view wx:for="{{[1,2,3]}}" wx:key="*this" class="skeleton-item">
+          <view class="skeleton-rank"></view>
+          <view class="skeleton-content">
+            <view class="skeleton-text"></view>
+            <view class="skeleton-sub"></view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{list.length > 0}}" class="rank-list">
+        <view
+          wx:for="{{list}}"
+          wx:key="id"
+          class="rank-item"
+          data-id="{{item.id}}"
+          bindtap="onItemTap"
+          hover-class="rank-item-pressed"
+        >
+          <view class="rank-number {{index < 3 ? 'top top-' + (index + 1) : ''}}">{{index + 1}}</view>
+          <view class="rank-content">
+            <text class="rank-quote">{{item.summary}}</text>
+            <view class="rank-meta">
+              <text class="rank-source">{{item.source}}</text>
+              <view class="rank-count">
+                <app-icon name="heart" color="#A04D43" size="{{26}}" filled="{{true}}"></app-icon>
+                <text>{{item.countText}}</text>
+              </view>
+            </view>
+          </view>
+          <view
+            class="rank-favorite {{item.favorited ? 'active' : ''}}"
+            data-id="{{item.id}}"
+            catchtap="onFavorite"
+            hover-class="rank-favorite-pressed"
+          >
+            <app-icon
+              name="star"
+              color="{{item.favorited ? '#B78428' : '#81766F'}}"
+              size="{{40}}"
+              filled="{{item.favorited}}"
+            ></app-icon>
+          </view>
+        </view>
+      </view>
+
+      <empty-state
+        wx:if="{{!loading && list.length === 0}}"
+        type="rank"
+        bind:action="onGoHome"
+      ></empty-state>
+    </scroll-view>
+  </template>
+
+  <!-- 排行列表 Swiper -->
+  <swiper class="rank-swiper" current="{{activeTabIndex}}" bindchange="onSwiperChange">
+    <swiper-item>
+      <template is="rankList" data="{{type: 'today', list: rankLists.today, loading: loading.today, refreshing: refreshing.today}}"></template>
+    </swiper-item>
+    <swiper-item>
+      <template is="rankList" data="{{type: 'week', list: rankLists.week, loading: loading.week, refreshing: refreshing.week}}"></template>
+    </swiper-item>
+    <swiper-item>
+      <template is="rankList" data="{{type: 'month', list: rankLists.month, loading: loading.month, refreshing: refreshing.month}}"></template>
+    </swiper-item>
+  </swiper>
+
+  <!-- 登录弹窗 -->
+  <login-modal
+    show="{{showLoginModal}}"
+    bind:success="onLoginSuccess"
+    bind:fail="onLoginFail"
+    bind:close="onCloseLoginModal"
+  ></login-modal>
+</view>

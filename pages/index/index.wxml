@@ -1,0 +1,47 @@
+<view class="container">
+  <!-- 品牌区 -->
+  <view class="brand-area">
+    <text class="brand-title">一句毛选</text>
+    <text class="brand-slogan">每日一句，汲取思想力量</text>
+  </view>
+
+  <!-- 加载骨架 -->
+  <view wx:if="{{loading && !quote}}" class="skeleton-card">
+    <view class="skeleton-line long"></view>
+    <view class="skeleton-line medium"></view>
+    <view class="skeleton-line short"></view>
+    <view class="skeleton-source"></view>
+  </view>
+
+  <!-- 金句卡片 -->
+  <quote-card
+    wx:if="{{quote}}"
+    quote="{{quote}}"
+    liked="{{liked}}"
+    favorited="{{favorited}}"
+    loading="{{loading}}"
+    bind:like="onLike"
+    bind:favorite="onFavorite"
+    bind:share="onShare"
+    bind:refresh="onRefresh"
+    bind:tap="onTapCard"
+  ></quote-card>
+
+  <!-- 登录弹窗 -->
+  <login-modal
+    show="{{showLoginModal}}"
+    bind:success="onLoginSuccess"
+    bind:fail="onLoginFail"
+    bind:close="onCloseLoginModal"
+  ></login-modal>
+
+  <!-- 分享海报 -->
+  <share-poster
+    wx:if="{{showSharePoster}}"
+    visible="{{showSharePoster}}"
+    quote="{{quote}}"
+    bind:close="onCloseSharePoster"
+    bind:generated="onPosterGenerated"
+    bind:share="onPosterShare"
+  ></share-poster>
+</view>

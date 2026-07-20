@@ -1,0 +1,42 @@
+{
+  "description": "一句毛选 - 微信小程序",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "setting": {
+    "bundle": false,
+    "userConfirmedBundleSwitch": false,
+    "urlCheck": false,
+    "compileHotReLoad": true,
+    "lazyloadPlaceholderEnable": false,
+    "useStaticServer": true,
+    "bigPackageSizeSupport": true,
+    "skylineEnable": false,
+    "useMultiFrameRuntime": true,
+    "useApiHook": true,
+    "useApiHostProcess": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "condition": false,
+    "minified": true,
+    "postcss": true,
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "es6": true,
+    "enhance": true,
+    "showShadowRootInEjectAppComponent": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.17.0",
+  "appid": "wxc2c6977a582395ee",
+  "projectname": "yjmx",
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}
