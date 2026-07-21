@@ -19,6 +19,9 @@ Component({
     generating: false,
     tempImagePath: '',
     generated: false,
+    previewScale: 0.72,
+    previewWidth: 403,
+    previewHeight: 717,
   },
 
   observers: {
@@ -40,6 +43,7 @@ Component({
   methods: {
     initCanvas() {
       if (this.data.generating) return;
+      this.updatePreviewSize();
       this.setData({ generating: true });
       const query = wx.createSelectorQuery().in(this);
       query.select('#posterCanvas').fields({ node: true, size: true }).exec((res) => {
@@ -59,6 +63,28 @@ Component({
         this.canvas = canvas;
         this.ctx = ctx;
         this.drawPoster(W, H);
+      });
+    },
+
+    updatePreviewSize() {
+      let windowWidth = 375;
+      let windowHeight = 667;
+      try {
+        const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+        windowWidth = info.windowWidth || windowWidth;
+        windowHeight = info.windowHeight || windowHeight;
+      } catch (e) {}
+
+      const rpxPerPx = 750 / windowWidth;
+      const viewportHeight = windowHeight * rpxPerPx;
+      const chromeHeight = 330;
+      const availableCanvasHeight = Math.max(480, viewportHeight * 0.94 - chromeHeight);
+      const scale = Math.min(1, availableCanvasHeight / 996);
+
+      this.setData({
+        previewScale: Number(scale.toFixed(3)),
+        previewWidth: Math.round(560 * scale),
+        previewHeight: Math.round(996 * scale),
       });
     },
 
@@ -134,6 +160,8 @@ Component({
         canvas: this.canvas,
         destWidth: W,
         destHeight: H,
+        fileType: 'png',
+        quality: 1,
         success: (res) => {
           this.setData({ generating: false, generated: true, tempImagePath: res.tempFilePath });
           this.triggerEvent('generated', { path: res.tempFilePath });
@@ -169,19 +197,37 @@ Component({
         showToast('请等待卡片生成');
         return;
       }
+      this.savePosterImage();
+    },
+
+    savePosterImage() {
       wx.saveImageToPhotosAlbum({
         filePath: this.data.tempImagePath,
         success: () => showToast('已保存到相册', 'success'),
         fail: (err) => {
-          if (err.errMsg && err.errMsg.indexOf('auth') > -1) {
-            wx.showModal({
-              title: '需要授权',
-              content: '请允许保存到相册后再试',
-              success: (m) => { if (m.confirm) wx.openSetting(); },
-            });
-          } else {
-            showToast('保存失败，请重试');
-          }
+          this.handleSaveFailure(err);
+        },
+      });
+    },
+
+    handleSaveFailure(err) {
+      const message = (err && err.errMsg) || '';
+      if (!/(auth|authorize|permission|deny)/i.test(message)) {
+        showToast('保存失败，请重试');
+        return;
+      }
+
+      wx.authorize({
+        scope: 'scope.writePhotosAlbum',
+        success: () => this.savePosterImage(),
+        fail: () => {
+          wx.showModal({
+            title: '需要相册权限',
+            content: '请在设置中允许“保存到相册”后重试',
+            success: (res) => {
+              if (res.confirm) wx.openSetting();
+            },
+          });
         },
       });
     },

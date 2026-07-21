@@ -14,10 +14,10 @@
 
 .poster-wrap {
   width: 640rpx;
-  max-height: 90vh;
+  max-height: 94vh;
   background: #FFFFFF;
   border-radius: 24rpx;
-  padding: 40rpx 32rpx;
+  padding: 28rpx 32rpx 24rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -28,13 +28,11 @@
   font-size: 34rpx;
   font-weight: 700;
   color: #2C1810;
-  margin-bottom: 24rpx;
+  margin-bottom: 16rpx;
 }
 
 .poster-canvas-wrap {
   position: relative;
-  width: 560rpx;
-  height: 996rpx;
   border-radius: 16rpx;
   overflow: hidden;
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
@@ -80,8 +78,8 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin-top: 32rpx;
-  gap: 24rpx;
+  margin-top: 20rpx;
+  gap: 16rpx;
 }
 
 .poster-btn {
@@ -109,10 +107,10 @@
 }
 
 .poster-close {
-  margin-top: 24rpx;
+  margin-top: 10rpx;
   font-size: 28rpx;
   color: #6F6259;
-  padding: 16rpx 40rpx;
+  padding: 12rpx 40rpx;
 }
 
 @keyframes fadeIn {

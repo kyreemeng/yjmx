@@ -1,6 +1,8 @@
 .container {
   min-height: 100vh;
-  background: #FFF8F0;
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(196, 30, 30, 0.13), transparent 40%),
+    linear-gradient(165deg, #1A0F08 0%, #2C1810 55%, #0D0703 100%);
   padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
@@ -8,11 +10,31 @@
 }
 
 .detail-header {
-  padding-top: 60rpx;
-  padding-bottom: 20rpx;
+  padding: 46rpx 0 28rpx;
+  position: relative;
+}
+
+.detail-header::before,
+.detail-header::after {
+  content: '';
+  position: absolute;
+  top: 62rpx;
+  width: 64rpx;
+  height: 1rpx;
+  background: linear-gradient(90deg, transparent, rgba(183, 132, 40, 0.7));
+}
+
+.detail-header::before {
+  right: calc(50% + 92rpx);
+}
+
+.detail-header::after {
+  left: calc(50% + 92rpx);
+  transform: rotate(180deg);
 }
 
 .detail-from {
   font-size: 26rpx;
-  color: #8B7355;
+  color: rgba(245, 235, 216, 0.66);
+  letter-spacing: 2rpx;
 }

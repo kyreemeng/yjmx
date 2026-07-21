@@ -1,11 +1,15 @@
 <view wx:if="{{visible}}" class="poster-modal" bindtap="onClose">
   <view class="poster-wrap" catchtap="preventBubble">
     <view class="poster-title">生成分享卡片</view>
-    <view class="poster-canvas-wrap">
+    <view
+      class="poster-canvas-wrap"
+      style="width: {{previewWidth}}rpx; height: {{previewHeight}}rpx;"
+    >
       <canvas
         type="2d"
         id="posterCanvas"
         class="poster-canvas"
+        style="transform: scale({{previewScale}}); transform-origin: top left;"
       ></canvas>
       <view wx:if="{{generating}}" class="poster-loading">
         <view class="loading-spinner"></view>

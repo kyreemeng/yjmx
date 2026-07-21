@@ -1,6 +1,5 @@
 {
   "usingComponents": {
-    "quote-card": "/components/quote-card/quote-card",
     "login-modal": "/components/login-modal/login-modal",
     "share-poster": "/components/share-poster/share-poster",
     "empty-state": "/components/empty-state/empty-state"

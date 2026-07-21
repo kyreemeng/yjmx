@@ -1,7 +1,57 @@
 .container {
   min-height: 100vh;
-  background: #FAFAFA;
-  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(196, 30, 30, 0.13), transparent 42%),
+    linear-gradient(165deg, #1A0F08 0%, #2C1810 55%, #0D0703 100%);
+  padding: 42rpx 0 calc(60rpx + env(safe-area-inset-bottom));
+}
+
+.page-hero {
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  padding: 0 42rpx 32rpx;
+}
+
+.hero-seal {
+  width: 74rpx;
+  height: 74rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid rgba(245, 235, 216, 0.72);
+  border-radius: 8rpx;
+  background: linear-gradient(135deg, #C41E1E, #7E1111);
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.3), inset 0 1rpx 0 rgba(255, 255, 255, 0.24);
+  transform: rotate(-4deg);
+}
+
+.hero-seal text {
+  color: #F5EBD8;
+  font-size: 32rpx;
+  font-weight: 700;
+  font-family: 'Noto Serif CJK SC', 'Songti SC', serif;
+}
+
+.page-title,
+.page-subtitle {
+  display: block;
+}
+
+.page-title {
+  color: #F5EBD8;
+  font-size: 38rpx;
+  line-height: 1.25;
+  font-family: 'Noto Serif CJK SC', 'Songti SC', serif;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+}
+
+.page-subtitle {
+  margin-top: 8rpx;
+  color: rgba(245, 235, 216, 0.54);
+  font-size: 22rpx;
+  letter-spacing: 1rpx;
 }
 
 .skeleton-list {
@@ -9,8 +59,9 @@
 }
 
 .skeleton-item {
-  background: #FFFFFF;
-  border-radius: 16rpx;
+  background: rgba(245, 235, 216, 0.08);
+  border: 1rpx solid rgba(183, 132, 40, 0.16);
+  border-radius: 12rpx;
   padding: 32rpx;
   margin-top: 24rpx;
 }
@@ -18,7 +69,7 @@
 .skeleton-text {
   width: 100%;
   height: 36rpx;
-  background: #F0EDE8;
+  background: rgba(245, 235, 216, 0.12);
   border-radius: 8rpx;
   margin-bottom: 16rpx;
 }
@@ -26,7 +77,7 @@
 .skeleton-sub {
   width: 40%;
   height: 24rpx;
-  background: #F0EDE8;
+  background: rgba(245, 235, 216, 0.08);
   border-radius: 8rpx;
 }
 
@@ -35,18 +86,20 @@
 }
 
 .list-item {
-  background: #FFFFFF;
-  border: 1rpx solid rgba(139, 115, 85, 0.1);
-  border-radius: 20rpx;
+  background:
+    linear-gradient(135deg, rgba(245, 235, 216, 0.98), rgba(234, 220, 195, 0.98));
+  border: 1rpx solid rgba(183, 132, 40, 0.38);
+  border-radius: 12rpx;
   padding: 32rpx;
   margin-top: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(83, 48, 30, 0.05);
+  box-shadow: 0 10rpx 28rpx rgba(0, 0, 0, 0.25), inset 0 1rpx 0 rgba(255, 255, 255, 0.7);
   transition: transform 160ms ease, background-color 160ms ease;
 }
 
 .item-quote {
   font-size: 32rpx;
-  color: #2C1810;
+  color: #2A170E;
+  font-family: 'Noto Serif CJK SC', 'Songti SC', serif;
   line-height: 1.6;
   font-weight: 500;
   display: block;
@@ -61,7 +114,7 @@
 
 .item-source {
   font-size: 24rpx;
-  color: #8B7355;
+  color: #7A5139;
   max-width: 72%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -70,12 +123,12 @@
 
 .item-time {
   font-size: 24rpx;
-  color: #6F6259;
+  color: #856A56;
 }
 
 .list-item-pressed {
-  background: #FFF8F0;
-  transform: scale(0.99);
+  background: #F5EBD8;
+  transform: translateY(2rpx) scale(0.99);
 }
 
 @media (prefers-reduced-motion: reduce) {

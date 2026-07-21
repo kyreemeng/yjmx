@@ -153,6 +153,18 @@ test('分享海报不绘制不可扫描的伪小程序码', () => {
   assert.match(source, /triggerEvent\('share'/);
 });
 
+test('分享海报会按可用高度缩放，并处理相册权限失败', () => {
+  const template = read('components/share-poster/share-poster.wxml');
+  const source = read('components/share-poster/share-poster.js');
+
+  assert.match(template, /previewWidth/);
+  assert.match(template, /previewHeight/);
+  assert.match(template, /previewScale/);
+  assert.match(source, /updatePreviewSize/);
+  assert.match(source, /scope\.writePhotosAlbum/);
+  assert.match(source, /savePosterImage/);
+});
+
 test('我的页面登录后继续执行原先请求的页面跳转', () => {
   const source = read('pages/mine/mine.js');
   assert.match(source, /pendingRoute/);
@@ -165,6 +177,34 @@ test('排行榜内层滚动区实现下拉刷新', () => {
   assert.match(template, /refresher-enabled="\{\{true\}\}"/);
   assert.match(template, /bindrefresherrefresh="onRankRefresh"/);
   assert.match(source, /onRankRefresh/);
+});
+
+test('首页揭卡时将卡牌定位至舞台中心', () => {
+  const template = read('pages/index/index.wxml');
+  const style = read('pages/index/index.wxss');
+
+  assert.match(template, /class="box-area state-\{\{drawState\}\}"/);
+  assert.match(style, /\.box-area\.state-revealed \.card-stage/);
+  assert.match(style, /position: absolute;/);
+  assert.match(style, /top: 28rpx;/);
+});
+
+test('首页打开后默认自动拆卡，无需手动点击', () => {
+  const source = read('pages/index/index.js');
+  const onLoadBody = source.match(/onLoad\(options = \{\}\) \{([\s\S]*?)\n  \},/)[1];
+  assert.match(onLoadBody, /loadRandomQuote/);
+  assert.match(onLoadBody, /startDrawSequence/);
+  assert.match(source, /startDrawSequence\(\) \{/);
+});
+
+test('个人中心提供居中授权与退出按钮', () => {
+  const template = read('pages/mine/mine.wxml');
+  const style = read('pages/mine/mine.wxss');
+
+  assert.match(template, /class="login-btn"/);
+  assert.match(template, /class="logout-btn"/);
+  assert.match(style, /\.login-btn \{[\s\S]*?justify-content: center;/);
+  assert.match(style, /\.logout-btn \{[\s\S]*?justify-content: center;/);
 });
 
 test('朋友圈分享能力已声明且首页会消费分享的金句 id', () => {

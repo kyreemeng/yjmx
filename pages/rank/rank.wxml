@@ -1,6 +1,10 @@
 <view class="container">
   <view class="rank-header">
-    <text class="rank-title">毛选金句排行</text>
+    <view class="rank-seal"><text>榜</text></view>
+    <view>
+      <text class="rank-title">金句排行</text>
+      <text class="rank-subtitle">大家正在读的思想火花</text>
+    </view>
   </view>
 
   <!-- Tab 栏 -->

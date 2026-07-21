@@ -4,9 +4,9 @@
   left: 0;
   right: 0;
   height: 100rpx;
-  background: rgba(255, 255, 255, 0.96);
-  border-top: 1rpx solid #F0EDE8;
-  box-shadow: 0 -8rpx 28rpx rgba(83, 48, 30, 0.05);
+  background: rgba(28, 14, 8, 0.96);
+  border-top: 1rpx solid rgba(183, 132, 40, 0.24);
+  box-shadow: 0 -8rpx 28rpx rgba(0, 0, 0, 0.22);
   z-index: 20;
 }
 
@@ -35,12 +35,12 @@
 .tab-text {
   font-size: 22rpx;
   line-height: 30rpx;
-  color: #81766F;
+  color: rgba(245, 235, 216, 0.52);
 }
 
 .tab-item.active .tab-icon,
 .tab-item.active .tab-text {
-  color: #C41E1E;
+  color: #E6BE66;
   font-weight: 600;
 }
 

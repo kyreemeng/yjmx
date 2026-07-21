@@ -1,9 +1,18 @@
 <view class="container">
   <!-- 用户信息区 -->
-  <view class="user-header" bindtap="onTapHeader">
-    <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
-    <text class="user-name">{{userInfo.nickName}}</text>
-    <text wx:if="{{!isLogin}}" class="user-tip">点击登录，收藏专属金句</text>
+  <view class="profile-panel">
+    <view class="panel-stamp"><text>我</text></view>
+    <view class="user-header" bindtap="onTapHeader">
+      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+      <text class="user-name">{{userInfo.nickName}}</text>
+      <text wx:if="{{!isLogin}}" class="user-tip">登录后保存你的金句收藏</text>
+    </view>
+    <view wx:if="{{!isLogin}}" class="login-area">
+      <button class="login-btn" bindtap="onTapHeader">
+        <app-icon name="user" color="#F5EBD8" size="{{32}}"></app-icon>
+        <text>授权登录</text>
+      </button>
+    </view>
   </view>
 
   <!-- 功能入口 -->
@@ -37,7 +46,9 @@
 
   <!-- 退出登录 -->
   <view wx:if="{{isLogin}}" class="logout-area">
-    <button class="logout-btn" bindtap="onLogout">退出登录</button>
+    <button class="logout-btn" bindtap="onLogout">
+      <text>退出登录</text>
+    </button>
   </view>
 
   <!-- 登录弹窗 -->

@@ -1,31 +1,169 @@
 <view class="container">
+  <!-- 背景光效粒子 -->
+  <view wx:if="{{drawState !== 'idle'}}" class="bg-particles">
+    <view wx:for="{{12}}" wx:key="*this" class="particle particle-{{index}}" style="animation-delay: {{index * 60}}ms;"></view>
+  </view>
+
   <!-- 品牌区 -->
   <view class="brand-area">
+    <view class="brand-stamp">毛选</view>
     <text class="brand-title">一句毛选</text>
-    <text class="brand-slogan">每日一句，汲取思想力量</text>
+    <view class="brand-divider">
+      <view class="divider-line"></view>
+      <view class="divider-dot"></view>
+      <view class="divider-line"></view>
+    </view>
+    <text class="brand-slogan">每日一拆 · 汲取思想力量</text>
   </view>
 
-  <!-- 加载骨架 -->
-  <view wx:if="{{loading && !quote}}" class="skeleton-card">
-    <view class="skeleton-line long"></view>
-    <view class="skeleton-line medium"></view>
-    <view class="skeleton-line short"></view>
-    <view class="skeleton-source"></view>
+  <!-- 盲盒区 -->
+  <view class="box-area state-{{drawState}}">
+    <!-- 盲盒 -->
+    <view 
+      class="box-wrap {{boxShaking ? 'is-shaking' : ''}} {{drawState === 'opening' ? 'is-opening' : ''}} {{drawState === 'revealed' ? 'is-opened' : ''}}"
+      bindtap="onOpenBox"
+    >
+      <!-- 盒盖 -->
+      <view class="box-lid {{drawState !== 'idle' ? 'lid-fly' : ''}}">
+        <view class="lid-top">
+          <view class="lid-stamp">
+            <text class="lid-stamp-text">毛\n选</text>
+          </view>
+        </view>
+        <view class="lid-edge"></view>
+        <!-- 封蜡 -->
+        <view class="wax-seal">
+          <text class="wax-seal-text">选</text>
+        </view>
+      </view>
+
+      <!-- 盒身 -->
+      <view class="box-body">
+        <view class="box-inner">
+          <!-- 盒内光效 -->
+          <view wx:if="{{drawState !== 'idle'}}" class="box-glow"></view>
+          <!-- 盒内暗影 -->
+          <view class="box-shadow-inner"></view>
+        </view>
+        <!-- 盒身侧面纹理 -->
+        <view class="box-side-pattern"></view>
+        <view class="box-label">
+          <text class="box-label-text">MAO'S QUOTES</text>
+        </view>
+      </view>
+
+      <!-- 盒底 -->
+      <view class="box-base"></view>
+
+      <!-- 待拆提示 -->
+      <view wx:if="{{drawState === 'idle'}}" class="box-hint">
+        <view class="hint-dot"></view>
+        <text class="box-hint-text">点击盲盒 · 拆一句</text>
+        <view class="hint-dot"></view>
+      </view>
+    </view>
+
+    <!-- 拆卡光柱 -->
+    <view wx:if="{{drawState === 'opening' || drawState === 'revealed'}}" class="light-beam {{drawState === 'revealed' ? 'beam-fade' : ''}}"></view>
+
+    <!-- 弹出的卡牌 -->
+    <view 
+      wx:if="{{quote && drawState !== 'idle'}}" 
+      class="card-stage {{drawState === 'revealed' ? 'card-up' : 'card-rising'}}"
+    >
+      <view class="card-3d {{drawState === 'revealed' ? 'card-flipped' : ''}}">
+        <!-- 卡背 -->
+        <view class="card-back">
+          <view class="card-back-frame"></view>
+          <view class="card-back-frame-inner"></view>
+          <view class="card-back-emblem">
+            <text class="card-back-emblem-text">毛</text>
+          </view>
+          <view class="card-back-stars">
+            <view class="card-star star-1"></view>
+            <view class="card-star star-2"></view>
+            <view class="card-star star-3"></view>
+          </view>
+          <view class="card-back-shine"></view>
+        </view>
+
+        <!-- 卡面 -->
+        <view class="card-front" bindtap="onTapCard">
+          <!-- 卡面顶部 -->
+          <view class="card-header">
+            <view class="card-rarity {{rarityClass}}">{{rarityLabel}}</view>
+            <text class="card-number">No.{{quote.id < 10 ? '00' : quote.id < 100 ? '0' : ''}}{{quote.id}}</text>
+          </view>
+
+          <!-- 卡面正文 -->
+          <view class="card-body">
+            <view class="card-quote-mark-top">「</view>
+            <text class="card-quote-text">{{quote.content}}</text>
+            <view class="card-quote-mark-bottom">」</view>
+          </view>
+
+          <!-- 卡面底部 -->
+          <view class="card-footer">
+            <view class="card-source-row">
+              <view class="card-source-line"></view>
+              <text class="card-source-text">{{quote.source}}</text>
+              <view class="card-source-line"></view>
+            </view>
+            <view class="card-seal-row">
+              <view class="card-seal">
+                <text class="card-seal-text">毛选</text>
+              </view>
+              <text class="card-author">— 毛泽东</text>
+            </view>
+          </view>
+
+          <!-- 卡面光泽 -->
+          <view class="card-shine"></view>
+          <!-- 卡面边框 -->
+          <view class="card-border"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载骨架 -->
+    <view wx:if="{{loading && !quote && drawState === 'idle'}}" class="skeleton-card">
+      <view class="skeleton-line long"></view>
+      <view class="skeleton-line medium"></view>
+      <view class="skeleton-line short"></view>
+      <view class="skeleton-source"></view>
+    </view>
   </view>
 
-  <!-- 金句卡片 -->
-  <quote-card
-    wx:if="{{quote}}"
-    quote="{{quote}}"
-    liked="{{liked}}"
-    favorited="{{favorited}}"
-    loading="{{loading}}"
-    bind:like="onLike"
-    bind:favorite="onFavorite"
-    bind:share="onShare"
-    bind:refresh="onRefresh"
-    bind:tap="onTapCard"
-  ></quote-card>
+  <!-- 操作栏 -->
+  <view wx:if="{{quote && drawState === 'revealed'}}" class="action-bar {{loading ? 'is-disabled' : ''}}">
+    <view class="action-btn refresh" catchtap="onRefresh" hover-class="action-hover">
+      <view class="action-icon-wrap {{animating && lastAction === 'refresh' ? 'animate-pop' : ''}}">
+        <app-icon name="refresh" color="#8B7355" size="{{44}}"></app-icon>
+      </view>
+      <text class="action-label">再拆一个</text>
+    </view>
+
+    <view class="action-btn like {{liked ? 'active' : ''}}" catchtap="onLike" hover-class="action-hover">
+      <view class="action-icon-wrap {{animating && lastAction === 'like' ? 'animate-pop' : ''}}">
+        <app-icon name="heart" color="{{liked ? '#C41E1E' : '#8B7355'}}" size="{{44}}" filled="{{liked}}"></app-icon>
+      </view>
+      <text class="action-label">{{liked ? '已赞' : '点赞'}} {{quote.stat.total || 0}}</text>
+    </view>
+
+    <view class="action-btn favorite {{favorited ? 'active' : ''}}" catchtap="onFavorite" hover-class="action-hover">
+      <view class="action-icon-wrap {{animating && lastAction === 'favorite' ? 'animate-pop' : ''}}">
+        <app-icon name="star" color="{{favorited ? '#B78428' : '#8B7355'}}" size="{{44}}" filled="{{favorited}}"></app-icon>
+      </view>
+      <text class="action-label">{{favorited ? '已收藏' : '收藏'}}</text>
+    </view>
+
+    <view class="action-btn share" catchtap="onShare" hover-class="action-hover">
+      <view class="action-icon-wrap {{animating && lastAction === 'share' ? 'animate-pop' : ''}}">
+        <app-icon name="share" color="#8B7355" size="{{44}}"></app-icon>
+      </view>
+      <text class="action-label">分享</text>
+    </view>
+  </view>
 
   <!-- 登录弹窗 -->
   <login-modal
