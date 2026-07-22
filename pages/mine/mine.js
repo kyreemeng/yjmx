@@ -1,4 +1,5 @@
 const userService = require('../../services/user-service');
+const reactionService = require('../../services/reaction-service');
 const { showToast } = require('../../utils/util');
 
 Page({
@@ -20,6 +21,8 @@ Page({
       this.getTabBar().setData({ selected: 2 });
     }
     this.refreshUserInfo();
+    // 收藏 / 点赞数量来自云端，与自定义登录态无关
+    this.loadCounts();
   },
 
   refreshUserInfo() {
@@ -28,9 +31,19 @@ Page({
     this.setData({
       userInfo,
       isLogin,
-      favoriteCount: isLogin ? userService.getFavoriteCount() : 0,
-      likeCount: userService.getLikeCount(),
     });
+  },
+
+  async loadCounts() {
+    try {
+      const [fav, like] = await Promise.all([
+        reactionService.getCount('favorite'),
+        reactionService.getCount('like'),
+      ]);
+      this.setData({ favoriteCount: fav, likeCount: like });
+    } catch (err) {
+      // 云函数未部署或网络异常时静默降级，不影响其它功能
+    }
   },
 
   onTapHeader() {

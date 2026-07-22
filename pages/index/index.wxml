@@ -165,14 +165,6 @@
     </view>
   </view>
 
-  <!-- 登录弹窗 -->
-  <login-modal
-    show="{{showLoginModal}}"
-    bind:success="onLoginSuccess"
-    bind:fail="onLoginFail"
-    bind:close="onCloseLoginModal"
-  ></login-modal>
-
   <!-- 分享海报 -->
   <share-poster
     wx:if="{{showSharePoster}}"

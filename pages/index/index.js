@@ -1,6 +1,8 @@
 const quoteService = require('../../services/quote-service');
 const userService = require('../../services/user-service');
-const { showToast, showLoading, hideLoading } = require('../../utils/util');
+const reactionService = require('../../services/reaction-service');
+const { showToast } = require('../../utils/util');
+const { runReaction } = require('../../utils/interaction');
 
 // 稀有度配置（基于金句ID取模，营造抽卡稀有度差异）
 const RARITY_CONFIG = {
@@ -24,9 +26,7 @@ Page({
     loading: false,
     liked: false,
     favorited: false,
-    showLoginModal: false,
     showSharePoster: false,
-    pendingAction: null,
     // 盲盒状态: idle | opening | revealed
     drawState: 'idle',
     boxShaking: false,
@@ -53,7 +53,7 @@ Page({
       this.getTabBar().setData({ selected: 0 });
     }
     if (this.data.quote) {
-      this.refreshInteractionState(this.data.quote.id);
+      this.syncInteractionState(this.data.quote.id);
     }
   },
 
@@ -103,14 +103,20 @@ Page({
     if (!quote) return false;
     quoteService.recordViewedQuote(quote.id);
     const rarity = getRarity(quote.id);
-    this.setData({
-      quote,
-      loading: false,
-      drawState: 'revealed',
-      liked: userService.isLiked(quote.id),
-      favorited: userService.isFavorite(quote.id),
-      rarityLabel: rarity.label,
-      rarityClass: rarity.class,
+    Promise.all([
+      reactionService.batchStatus('favorite', [id]),
+      reactionService.batchStatus('like', [id]),
+    ]).then(([favMap, likeMap]) => {
+      if (!this.data.quote || this.data.quote.id !== id) return;
+      this.setData({
+        quote,
+        loading: false,
+        drawState: 'revealed',
+        liked: !!likeMap[id],
+        favorited: !!favMap[id],
+        rarityLabel: rarity.label,
+        rarityClass: rarity.class,
+      });
     });
     return true;
   },
@@ -126,13 +132,17 @@ Page({
     const quote = quoteService.getRandomQuote(viewed);
     quoteService.recordViewedQuote(quote.id);
 
-    this._loadTimer = setTimeout(() => {
-      const rarity = getRarity(quote.id);
+    const rarity = getRarity(quote.id);
+    this._loadTimer = setTimeout(async () => {
+      const [favMap, likeMap] = await Promise.all([
+        reactionService.batchStatus('favorite', [quote.id]),
+        reactionService.batchStatus('like', [quote.id]),
+      ]);
       this.setData({
         quote,
         loading: false,
-        liked: userService.isLiked(quote.id),
-        favorited: userService.isFavorite(quote.id),
+        liked: !!likeMap[quote.id],
+        favorited: !!favMap[quote.id],
         rarityLabel: rarity.label,
         rarityClass: rarity.class,
       }, () => {
@@ -180,60 +190,45 @@ Page({
     }
   },
 
-  refreshInteractionState(quoteId) {
+  // 与云端同步当前金句的收藏 / 点赞状态（onShow 复用，保证多页面切换后状态一致）
+  async syncInteractionState(quoteId) {
+    const [favMap, likeMap] = await Promise.all([
+      reactionService.batchStatus('favorite', [quoteId]),
+      reactionService.batchStatus('like', [quoteId]),
+    ]);
     this.setData({
-      liked: userService.isLiked(quoteId),
-      favorited: userService.isFavorite(quoteId),
+      favorited: !!favMap[quoteId],
+      liked: !!likeMap[quoteId],
     });
   },
 
   onLike() {
     const quote = this.data.quote;
     if (!quote) return;
-
-    const result = userService.likeQuote(quote.id);
-    if (result.success) {
-      const stat = quoteService.incrementLike(quote.id);
-      this.setData({
-        liked: true,
-        animating: true,
-        lastAction: 'like',
-        'quote.stat': stat,
-      });
-      showToast('点赞成功', 'success');
+    return runReaction.call(this, async () => {
+      const before = this.data.liked;
+      const status = await reactionService.toggle('like', quote.id);
+      this.setData({ liked: status, animating: true, lastAction: 'like' });
       setTimeout(() => this.setData({ animating: false }), 200);
-    } else if (result.reason === 'already_liked') {
-      showToast(result.message);
-    }
+      // 点赞热度统计（本地趋势指标）：变为已赞时 +1
+      if (status && !before) {
+        const stat = quoteService.incrementLike(quote.id);
+        this.setData({ 'quote.stat': stat });
+      }
+      wx.showToast({ title: status ? '点赞成功' : '已取消点赞', icon: status ? 'success' : 'none' });
+    });
   },
 
+  // 收藏不再依赖自定义登录：云函数经 openid 自动识别用户身份
   onFavorite() {
     const quote = this.data.quote;
     if (!quote) return;
-
-    if (!userService.isLogin()) {
-      this.setData({ showLoginModal: true, pendingAction: 'favorite' });
-      return;
-    }
-
-    this.doFavorite(quote.id);
-  },
-
-  doFavorite(quoteId) {
-    const result = userService.toggleFavorite(quoteId);
-    if (result.success) {
-      this.setData({
-        favorited: userService.isFavorite(quoteId),
-        animating: true,
-        lastAction: 'favorite',
-      });
-      showToast(result.message || '操作成功', result.reason === 'favorited' ? 'success' : 'none');
+    return runReaction.call(this, async () => {
+      const status = await reactionService.toggle('favorite', quote.id);
+      this.setData({ favorited: status, animating: true, lastAction: 'favorite' });
       setTimeout(() => this.setData({ animating: false }), 200);
-    } else if (result.reason === 'need_login') {
-      this.setData({ showLoginModal: true, pendingAction: 'favorite' });
-    } else if (result.reason === 'limit_reached') {
-      showToast(result.message);
-    }
+      wx.showToast({ title: status ? '已收藏' : '已取消收藏', icon: status ? 'success' : 'none' });
+    });
   },
 
   onShare() {
@@ -269,27 +264,6 @@ Page({
     wx.navigateTo({
       url: `/pages/detail/detail?id=${quote.id}&from=home`,
     });
-  },
-
-  onLoginSuccess(e) {
-    const userInfo = e.detail.userInfo;
-    userService.login(userInfo);
-    this.setData({ showLoginModal: false });
-    showToast('登录成功', 'success');
-
-    if (this.data.pendingAction === 'favorite' && this.data.quote) {
-      this.doFavorite(this.data.quote.id);
-    }
-    this.setData({ pendingAction: null });
-  },
-
-  onLoginFail() {
-    this.setData({ showLoginModal: false, pendingAction: null });
-    showToast('授权后可收藏金句哦~');
-  },
-
-  onCloseLoginModal() {
-    this.setData({ showLoginModal: false, pendingAction: null });
   },
 
   onCloseSharePoster() {

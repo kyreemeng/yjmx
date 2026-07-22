@@ -31,6 +31,7 @@
     "showShadowRootInEjectAppComponent": true
   },
   "compileType": "miniprogram",
+  "cloudfunctionRoot": "cloudfunctions/",
   "libVersion": "3.17.0",
   "appid": "wxc2c6977a582395ee",
   "projectname": "yjmx",
@@ -38,5 +39,6 @@
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
-  }
+  },
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
 }

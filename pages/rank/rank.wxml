@@ -99,12 +99,4 @@
       <template is="rankList" data="{{type: 'month', list: rankLists.month, loading: loading.month, refreshing: refreshing.month}}"></template>
     </swiper-item>
   </swiper>
-
-  <!-- 登录弹窗 -->
-  <login-modal
-    show="{{showLoginModal}}"
-    bind:success="onLoginSuccess"
-    bind:fail="onLoginFail"
-    bind:close="onCloseLoginModal"
-  ></login-modal>
 </view>

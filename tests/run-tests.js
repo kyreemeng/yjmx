@@ -41,17 +41,76 @@ function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), 'utf8');
 }
 
+const tests = [];
 function test(name, fn) {
-  try {
-    storageData.clear();
-    copiedAvatar = null;
-    fn();
-    console.log(`✓ ${name}`);
-  } catch (error) {
-    console.error(`✗ ${name}`);
-    throw error;
-  }
+  tests.push(async () => {
+    try {
+      storageData.clear();
+      copiedAvatar = null;
+      await fn();
+      console.log(`✓ ${name}`);
+    } catch (error) {
+      console.error(`✗ ${name}`);
+      throw error;
+    }
+  });
 }
+
+// 模拟云端 reaction 云函数：以确定式 key 保证“同一用户对同一内容不重复”
+const cloud = require('../utils/cloud');
+const reactionService = require('../services/reaction-service');
+
+const OPENID = 'test_openid';
+const store = new Map(); // key: `${type}__${targetId}` -> createTime(ms)
+
+function fakeReactionCaller({ data }) {
+  const { action, type, targetId } = data;
+  const key = `${type}__${targetId}`;
+  if (action === 'toggle') {
+    if (store.has(key)) {
+      store.delete(key);
+      return Promise.resolve({ result: { success: true, status: false, type, targetId } });
+    }
+    store.set(key, Date.now());
+    return Promise.resolve({ result: { success: true, status: true, type, targetId } });
+  }
+  if (action === 'status') {
+    if (Array.isArray(data.targetIds)) {
+      const map = {};
+      data.targetIds.forEach((id) => {
+        map[id] = store.has(`${type}__${id}`);
+      });
+      return Promise.resolve({ result: { success: true, map } });
+    }
+    return Promise.resolve({ result: { success: true, status: store.has(key) } });
+  }
+  if (action === 'list') {
+    const list = [];
+    store.forEach((time, k) => {
+      const [t, id] = k.split('__');
+      if (t === type) list.push({ targetId: Number(id), createTime: time });
+    });
+    list.sort((a, b) => b.createTime - a.createTime);
+    return Promise.resolve({ result: { success: true, list } });
+  }
+  if (action === 'count') {
+    let total = 0;
+    store.forEach((_, k) => {
+      if (k.startsWith(`${type}__`)) total += 1;
+    });
+    return Promise.resolve({ result: { success: true, total } });
+  }
+  if (action === 'add') {
+    store.set(key, Date.now());
+    return Promise.resolve({ result: { success: true, status: true, type, targetId } });
+  }
+  if (action === 'remove') {
+    store.delete(key);
+    return Promise.resolve({ result: { success: true, status: false, type, targetId } });
+  }
+  return Promise.resolve({ result: { success: false, code: 'INVALID_ACTION' } });
+}
+cloud.__setCaller(fakeReactionCaller);
 
 test('语料不少于 100 条且每条包含出处与核验状态', () => {
   const quoteData = require('../utils/quote-data');
@@ -225,15 +284,59 @@ test('未登录仍可查看本机匿名点赞记录', () => {
   assert.match(onLikesBody, /pages\/likes\/likes/);
 });
 
-test('退出登录后不暴露收藏状态和收藏数量', () => {
-  const userService = require('../services/user-service');
+test('收藏切换具有幂等性且同一内容不会重复记录', async () => {
+  store.clear();
+  assert.equal(await reactionService.toggle('favorite', 1), true);
+  assert.equal(await reactionService.toggle('favorite', 1), false);
+  // 再次收藏仍为 true，云端不会出现重复记录
+  assert.equal(await reactionService.toggle('favorite', 1), true);
+  const list = await reactionService.getList('favorite');
+  assert.equal(list.length, 1);
+});
 
-  userService.login({ nickName: '读者', avatarUrl: '/avatar.png' });
-  userService.favoriteQuote(1);
-  assert.equal(userService.isFavorite(1), true);
-  userService.logout();
-  assert.equal(userService.isFavorite(1), false);
-  assert.equal(userService.getFavoriteCount(), 0);
+test('点赞记录按操作时间倒序返回', async () => {
+  store.clear();
+  await reactionService.toggle('like', 1);
+  await new Promise((r) => setTimeout(r, 5));
+  await reactionService.toggle('like', 2);
+  const list = await reactionService.getList('like');
+  assert.deepEqual(list.map((item) => item.targetId), [2, 1]);
+});
+
+test('云端状态查询可批量确认多条文案是否已收藏', async () => {
+  store.clear();
+  await reactionService.toggle('favorite', 5);
+  await reactionService.toggle('favorite', 7);
+  const map = await reactionService.batchStatus('favorite', [5, 6, 7]);
+  assert.equal(map[5], true);
+  assert.equal(map[6], false);
+  assert.equal(map[7], true);
+});
+
+test('收藏列表携带金句内容与展示字段', async () => {
+  store.clear();
+  await reactionService.toggle('favorite', 1);
+  const list = await reactionService.getListWithQuotes('favorite');
+  assert.equal(list.length, 1);
+  assert.equal(list[0].id, 1);
+  assert.equal(typeof list[0].summary, 'string');
+  assert.equal(typeof list[0].timeText, 'string');
+});
+
+test('云端调用失败时操作回滚并抛出错误', async () => {
+  store.clear();
+  const failingCaller = () =>
+    Promise.resolve({ result: { success: false, code: 'SERVER_ERROR', message: '服务异常' } });
+  cloud.__setCaller(failingCaller);
+  let threw = false;
+  try {
+    await reactionService.toggle('favorite', 99);
+  } catch (err) {
+    threw = true;
+  }
+  assert.equal(threw, true);
+  assert.equal(store.has('favorite__99'), false);
+  cloud.__setCaller(fakeReactionCaller);
 });
 
 test('排行页再次显示时重新同步当前榜单', () => {
@@ -242,24 +345,20 @@ test('排行页再次显示时重新同步当前榜单', () => {
   assert.match(onShowBody, /loadRank\(this\.data\.activeTab\)/);
 });
 
-test('收藏登录成功后能够完成原操作', () => {
-  const userService = require('../services/user-service');
-
-  assert.equal(userService.favoriteQuote(1).reason, 'need_login');
-  userService.login({ nickName: '读者', avatarUrl: '/avatar.png' });
-  assert.equal(userService.favoriteQuote(1).reason, 'favorited');
-  assert.equal(userService.isFavorite(1), true);
+test('收藏不再依赖自定义登录，未登录即可完成收藏并查询数量', async () => {
+  store.clear();
+  // 收藏走云端 openid，无需 userService.login
+  assert.equal(await reactionService.toggle('favorite', 1), true);
+  assert.equal(await reactionService.getStatus('favorite', 1), true);
+  assert.equal(await reactionService.getCount('favorite'), 1);
 });
 
-test('点赞记录保存精确时间并按时间倒序返回', () => {
-  const userService = require('../services/user-service');
-  const storage = require('../utils/storage');
-
-  userService.likeQuote(1);
-  const stored = storage.getLikedQuotes()[1];
-  assert.equal(typeof stored.time, 'number');
-  assert.match(stored.date, /^\d{4}-\d{2}-\d{2}$/);
-  assert.equal(userService.getLikedQuotesList()[0].likeTime, stored.time);
+test('点赞与取消点赞在云端保持最终一致', async () => {
+  store.clear();
+  assert.equal(await reactionService.toggle('like', 1), true);
+  assert.equal(await reactionService.getStatus('like', 1), true);
+  assert.equal(await reactionService.toggle('like', 1), false);
+  assert.equal(await reactionService.getStatus('like', 1), false);
 });
 
 test('登录时将临时头像保存到小程序持久目录', () => {
@@ -273,4 +372,9 @@ test('登录时将临时头像保存到小程序持久目录', () => {
   assert.equal(user.avatarUrl, '/mini-user-data/user-avatar.jpg');
 });
 
-console.log('全部测试通过');
+(async () => {
+  for (const t of tests) {
+    await t();
+  }
+  console.log('全部测试通过');
+})();

@@ -1,5 +1,5 @@
-const userService = require('../../services/user-service');
-const { formatTime, truncateText } = require('../../utils/util');
+const reactionService = require('../../services/reaction-service');
+const { showToast } = require('../../utils/util');
 
 Page({
   data: {
@@ -18,13 +18,14 @@ Page({
   loadData() {
     if (this._loadTimer) clearTimeout(this._loadTimer);
     this.setData({ loading: true });
-    this._loadTimer = setTimeout(() => {
-      const list = userService.getLikedQuotesList().map((item) => ({
-        ...item,
-        summary: truncateText(item.content, 30),
-        timeText: item.likeTime ? formatTime(item.likeTime) : item.likeDate,
-      }));
-      this.setData({ list, loading: false });
+    this._loadTimer = setTimeout(async () => {
+      try {
+        const list = await reactionService.getListWithQuotes('like', 200);
+        this.setData({ list, loading: false });
+      } catch (err) {
+        this.setData({ loading: false });
+        showToast('记录加载失败，请重试');
+      }
       this._loadTimer = null;
     }, 200);
   },

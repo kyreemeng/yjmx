@@ -1,6 +1,7 @@
 const quoteService = require('../../services/quote-service');
-const userService = require('../../services/user-service');
+const reactionService = require('../../services/reaction-service');
 const { showToast } = require('../../utils/util');
+const { runReaction } = require('../../utils/interaction');
 
 const FROM_LABELS = {
   home: '首页',
@@ -15,7 +16,6 @@ Page({
     quote: null,
     liked: false,
     favorited: false,
-    showLoginModal: false,
     showSharePoster: false,
     from: '',
   },
@@ -33,7 +33,7 @@ Page({
 
   onShow() {
     if (this.data.quote) {
-      this.refreshInteractionState(this.data.quote.id);
+      this.syncInteractionState(this.data.quote.id);
     }
   },
 
@@ -61,7 +61,7 @@ Page({
     };
   },
 
-  loadQuote(id) {
+  async loadQuote(id) {
     const quote = quoteService.getQuoteByIdWithStats(id);
     if (!quote) {
       wx.showToast({ title: '金句不存在', icon: 'none' });
@@ -75,78 +75,59 @@ Page({
       }, 1500);
       return;
     }
+
+    // 先展示内容，再与云端同步收藏 / 点赞状态
+    const [favMap, likeMap] = await Promise.all([
+      reactionService.batchStatus('favorite', [id]),
+      reactionService.batchStatus('like', [id]),
+    ]);
     this.setData({
       quote,
-      liked: userService.isLiked(id),
-      favorited: userService.isFavorite(id),
+      liked: !!likeMap[id],
+      favorited: !!favMap[id],
     });
   },
 
-  refreshInteractionState(quoteId) {
+  // 与云端同步状态，保证从其它页面返回后界面与云端一致
+  async syncInteractionState(quoteId) {
+    const [favMap, likeMap] = await Promise.all([
+      reactionService.batchStatus('favorite', [quoteId]),
+      reactionService.batchStatus('like', [quoteId]),
+    ]);
     this.setData({
-      liked: userService.isLiked(quoteId),
-      favorited: userService.isFavorite(quoteId),
+      favorited: !!favMap[quoteId],
+      liked: !!likeMap[quoteId],
     });
   },
 
   onLike() {
     const quote = this.data.quote;
     if (!quote) return;
-    const result = userService.likeQuote(quote.id);
-    if (result.success) {
-      const stat = quoteService.incrementLike(quote.id);
-      this.setData({
-        liked: true,
-        'quote.stat': stat,
-      });
-      showToast('点赞成功', 'success');
-    } else if (result.reason === 'already_liked') {
-      showToast(result.message);
-    }
+    return runReaction.call(this, async () => {
+      const before = this.data.liked;
+      const status = await reactionService.toggle('like', quote.id);
+      this.setData({ liked: status });
+      if (status && !before) {
+        const stat = quoteService.incrementLike(quote.id);
+        this.setData({ 'quote.stat': stat });
+      }
+      wx.showToast({ title: status ? '点赞成功' : '已取消点赞', icon: status ? 'success' : 'none' });
+    });
   },
 
   onFavorite() {
     const quote = this.data.quote;
     if (!quote) return;
-    if (!userService.isLogin()) {
-      this.setData({ showLoginModal: true });
-      return;
-    }
-    this.doFavorite(quote.id);
-  },
-
-  doFavorite(quoteId) {
-    const result = userService.toggleFavorite(quoteId);
-    if (result.success) {
-      this.setData({ favorited: userService.isFavorite(quoteId) });
-      showToast(result.message || '操作成功', result.reason === 'favorited' ? 'success' : 'none');
-    } else if (result.reason === 'limit_reached') {
-      showToast(result.message);
-    }
+    return runReaction.call(this, async () => {
+      const status = await reactionService.toggle('favorite', quote.id);
+      this.setData({ favorited: status });
+      wx.showToast({ title: status ? '已收藏' : '已取消收藏', icon: status ? 'success' : 'none' });
+    });
   },
 
   onShare() {
     if (!this.data.quote) return;
     this.setData({ showSharePoster: true });
-  },
-
-  onLoginSuccess(e) {
-    const userInfo = e.detail.userInfo;
-    userService.login(userInfo);
-    this.setData({ showLoginModal: false });
-    showToast('登录成功', 'success');
-    if (this.data.quote) {
-      this.doFavorite(this.data.quote.id);
-    }
-  },
-
-  onLoginFail() {
-    this.setData({ showLoginModal: false });
-    showToast('授权后可收藏金句哦~');
-  },
-
-  onCloseLoginModal() {
-    this.setData({ showLoginModal: false });
   },
 
   onCloseSharePoster() {

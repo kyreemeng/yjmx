@@ -8,8 +8,22 @@ App({
 
   onLaunch(options) {
     this.globalData.launchOptions = options;
+    this.initCloud();
     this.initSystemInfo();
     this.initUserInfo();
+  },
+
+  initCloud() {
+    try {
+      if (typeof wx !== 'undefined' && wx.cloud) {
+        wx.cloud.init({
+          env: 'cloud1-d9gudmlaz44a63ab3',
+          traceUser: true,
+        });
+      }
+    } catch (err) {
+      console.error('云开发初始化失败', err);
+    }
   },
 
   onShow(options) {

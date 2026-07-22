@@ -14,13 +14,6 @@
     bind:share="onShare"
   ></quote-card>
 
-  <login-modal
-    show="{{showLoginModal}}"
-    bind:success="onLoginSuccess"
-    bind:fail="onLoginFail"
-    bind:close="onCloseLoginModal"
-  ></login-modal>
-
   <share-poster
     wx:if="{{showSharePoster}}"
     visible="{{showSharePoster}}"
