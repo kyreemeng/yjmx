@@ -1,5 +1,6 @@
 const reactionService = require('../../services/reaction-service');
 const { showToast } = require('../../utils/util');
+const { runReaction } = require('../../utils/interaction');
 
 Page({
   data: {
@@ -21,7 +22,14 @@ Page({
     this._loadTimer = setTimeout(async () => {
       try {
         const list = await reactionService.getListWithQuotes('favorite', 200);
-        this.setData({ list, loading: false });
+        const likeMap = await reactionService.batchStatus(
+          'like',
+          list.map((item) => item.id)
+        );
+        this.setData({
+          list: list.map((item) => ({ ...item, liked: !!likeMap[item.id] })),
+          loading: false,
+        });
       } catch (err) {
         this.setData({ loading: false });
         showToast('收藏加载失败，请重试');
@@ -31,25 +39,45 @@ Page({
   },
 
   onItemTap(e) {
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
+    if (!Number.isFinite(id)) return;
     wx.navigateTo({ url: `/pages/detail/detail?id=${id}&from=favorites` });
   },
 
-  onLongPress(e) {
-    const id = e.currentTarget.dataset.id;
-    wx.showActionSheet({
-      itemList: ['取消收藏'],
-      success: async (res) => {
-        if (res.tapIndex === 0) {
-          try {
-            await reactionService.remove('favorite', id);
-            this.loadData();
-            showToast('已取消收藏');
-          } catch (err) {
-            showToast('操作失败，请重试');
-          }
-        }
-      },
+  onFavorite(e) {
+    const id = Number(e.currentTarget.dataset.id);
+    if (!Number.isFinite(id)) return;
+    this._unfavorite(id);
+  },
+
+  onLike(e) {
+    const id = Number(e.currentTarget.dataset.id);
+    if (!Number.isFinite(id)) return;
+    this._toggleLike(id);
+  },
+
+  _unfavorite(id) {
+    return runReaction.call(this, async () => {
+      await reactionService.remove('favorite', id, { silent: true });
+      this.setData({
+        list: this.data.list.filter((item) => item.id !== id),
+      });
+      wx.showToast({ title: '已取消收藏', icon: 'none' });
+    });
+  },
+
+  _toggleLike(id) {
+    return runReaction.call(this, async () => {
+      const status = await reactionService.toggle('like', id, { silent: true });
+      this.setData({
+        list: this.data.list.map((item) =>
+          item.id === id ? { ...item, liked: status } : item
+        ),
+      });
+      wx.showToast({
+        title: status ? '点赞成功' : '已取消点赞',
+        icon: status ? 'success' : 'none',
+      });
     });
   },
 

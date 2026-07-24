@@ -3,7 +3,7 @@
     <view class="hero-seal"><text>藏</text></view>
     <view>
       <text class="page-title">金句收藏</text>
-      <text class="page-subtitle">收进匣中的思想片段</text>
+      <text class="page-subtitle">轻触下方图标，管理收藏与点赞</text>
     </view>
   </view>
 
@@ -21,13 +21,36 @@
       class="list-item"
       data-id="{{item.id}}"
       bindtap="onItemTap"
-      bindlongpress="onLongPress"
-      hover-class="list-item-pressed"
     >
       <text class="item-quote">{{item.summary}}</text>
       <view class="item-meta">
         <text class="item-source">{{item.source}}</text>
         <text class="item-time">{{item.timeText}}</text>
+      </view>
+      <view class="item-actions">
+        <view
+          class="item-action favorite-action active"
+          data-id="{{item.id}}"
+          catchtap="onFavorite"
+          hover-class="item-action-pressed"
+        >
+          <app-icon name="star" color="#B78428" size="{{30}}" filled="{{true}}"></app-icon>
+          <text>已收藏</text>
+        </view>
+        <view
+          class="item-action like-action {{item.liked ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          catchtap="onLike"
+          hover-class="item-action-pressed"
+        >
+          <app-icon
+            name="heart"
+            color="{{item.liked ? '#C41E1E' : '#7A5139'}}"
+            size="{{30}}"
+            filled="{{item.liked}}"
+          ></app-icon>
+          <text>{{item.liked ? '已点赞' : '点赞'}}</text>
+        </view>
       </view>
     </view>
   </view>
