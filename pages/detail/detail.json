@@ -1,8 +1,10 @@
 {
   "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar",
     "quote-card": "/components/quote-card/quote-card",
-    "login-modal": "/components/login-modal/login-modal",
-    "share-poster": "/components/share-poster/share-poster"
+    "share-poster": "/components/share-poster/share-poster",
+    "share-cover": "/components/share-cover/share-cover",
+    "empty-state": "/components/empty-state/empty-state"
   },
   "enableShareTimeline": true,
   "navigationBarTitleText": "金句详情"

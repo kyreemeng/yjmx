@@ -1,0 +1,33 @@
+/* ============================================================
+   分享封面离屏画布容器
+   画布固定在可视区域外，仅用于 Canvas 2D 绘制与导出
+   ============================================================ */
+.cover-host {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 540rpx;
+  height: 540rpx;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.cover-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* 5:4 画布 —— 好友分享卡片 */
+.cover-canvas-app {
+  width: 540rpx;
+  height: 432rpx;
+}
+
+/* 1:1 画布 —— 朋友圈卡片 */
+.cover-canvas-timeline {
+  width: 540rpx;
+  height: 540rpx;
+}

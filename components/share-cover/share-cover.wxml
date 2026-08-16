@@ -1,0 +1,14 @@
+<!-- 分享封面离屏画布：双比例自动生成 -->
+<!-- 5:4 好友分享卡片 + 1:1 朋友圈卡片 -->
+<view class="cover-host">
+  <canvas
+    type="2d"
+    id="coverApp"
+    class="cover-canvas cover-canvas-app"
+  ></canvas>
+  <canvas
+    type="2d"
+    id="coverTimeline"
+    class="cover-canvas cover-canvas-timeline"
+  ></canvas>
+</view>

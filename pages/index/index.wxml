@@ -1,3 +1,20 @@
+<!-- 点赞数缩写格式化：≥10000 显示 X万，避免操作栏数字溢出 -->
+<wxs module="fmt">
+var num = function (n) {
+  n = n || 0;
+  if (n >= 10000) {
+    var v = (n / 10000).toFixed(1);
+    if (v.indexOf('.0') >= 0) v = v.slice(0, v.length - 2);
+    return v + '万';
+  }
+  return String(n);
+};
+module.exports = { num: num };
+</wxs>
+
+<!-- 分享弹层时锁住页面 overflow，减少滚动/下拉穿透 -->
+<page-meta page-style="{{showSharePoster ? 'overflow: hidden;' : ''}}" />
+<nav-bar title="一句毛选"></nav-bar>
 <view class="container">
   <!-- 背景光效粒子 -->
   <view wx:if="{{drawState !== 'idle'}}" class="bg-particles">
@@ -6,69 +23,71 @@
 
   <!-- 品牌区 -->
   <view class="brand-area">
-    <view class="brand-stamp">毛选</view>
+    <view class="brand-stamp">
+      <view class="stamp-seal">
+        <text class="stamp-char">毛</text>
+        <text class="stamp-char">选</text>
+      </view>
+      <view class="stamp-dot"></view>
+    </view>
     <text class="brand-title">一句毛选</text>
     <view class="brand-divider">
       <view class="divider-line"></view>
       <view class="divider-dot"></view>
       <view class="divider-line"></view>
     </view>
-    <text class="brand-slogan">每日一拆 · 汲取思想力量</text>
+    <text class="brand-slogan">每日一句  汲取思想力量</text>
+    <view class="daily-summary">
+      <text class="daily-label">{{dailyMode ? '今日一句' : '再拆一句'}}</text>
+      <text wx:if="{{streakCount > 0}}" class="streak-label">连续{{streakCount}}天</text>
+    </view>
   </view>
 
-  <!-- 盲盒区 -->
+  <!-- 礼盒区 -->
   <view class="box-area state-{{drawState}}">
-    <!-- 盲盒 -->
-    <view 
+    <view
       class="box-wrap {{boxShaking ? 'is-shaking' : ''}} {{drawState === 'opening' ? 'is-opening' : ''}} {{drawState === 'revealed' ? 'is-opened' : ''}}"
       bindtap="onOpenBox"
+      hover-class="box-pressed"
     >
-      <!-- 盒盖 -->
+      <!-- 中国风锦盒：天地盖 + 描金 + 方印 -->
       <view class="box-lid {{drawState !== 'idle' ? 'lid-fly' : ''}}">
-        <view class="lid-top">
-          <view class="lid-stamp">
-            <text class="lid-stamp-text">毛\n选</text>
+        <view class="lid-face">
+          <view class="gold-frame"></view>
+          <view class="corner corner-tl"></view>
+          <view class="corner corner-tr"></view>
+          <view class="corner corner-bl"></view>
+          <view class="corner corner-br"></view>
+          <view class="lid-seal">
+            <text class="lid-seal-text">选</text>
           </view>
-        </view>
-        <view class="lid-edge"></view>
-        <!-- 封蜡 -->
-        <view class="wax-seal">
-          <text class="wax-seal-text">选</text>
         </view>
       </view>
 
       <!-- 盒身 -->
       <view class="box-body">
-        <view class="box-inner">
-          <!-- 盒内光效 -->
-          <view wx:if="{{drawState !== 'idle'}}" class="box-glow"></view>
-          <!-- 盒内暗影 -->
-          <view class="box-shadow-inner"></view>
+        <view class="box-face">
+          <view class="gold-frame body-frame"></view>
+          <view class="body-motif">
+            <view class="motif-line"></view>
+            <text class="motif-char">毛选</text>
+            <view class="motif-line"></view>
+          </view>
         </view>
-        <!-- 盒身侧面纹理 -->
-        <view class="box-side-pattern"></view>
-        <view class="box-label">
-          <text class="box-label-text">MAO'S QUOTES</text>
-        </view>
+        <view wx:if="{{drawState !== 'idle'}}" class="box-glow"></view>
       </view>
 
-      <!-- 盒底 -->
-      <view class="box-base"></view>
-
-      <!-- 待拆提示 -->
       <view wx:if="{{drawState === 'idle'}}" class="box-hint">
-        <view class="hint-dot"></view>
-        <text class="box-hint-text">点击盲盒 · 拆一句</text>
-        <view class="hint-dot"></view>
+        <text class="box-hint-text">正在为您拆一句…</text>
       </view>
     </view>
 
-    <!-- 拆卡光柱 -->
+    <!-- 开盒柔光 -->
     <view wx:if="{{drawState === 'opening' || drawState === 'revealed'}}" class="light-beam {{drawState === 'revealed' ? 'beam-fade' : ''}}"></view>
 
     <!-- 弹出的卡牌 -->
-    <view 
-      wx:if="{{quote && drawState !== 'idle'}}" 
+    <view
+      wx:if="{{quote && drawState !== 'idle'}}"
       class="card-stage {{drawState === 'revealed' ? 'card-up' : 'card-rising'}}"
     >
       <view class="card-3d {{drawState === 'revealed' ? 'card-flipped' : ''}}">
@@ -89,20 +108,17 @@
 
         <!-- 卡面 -->
         <view class="card-front" bindtap="onTapCard">
-          <!-- 卡面顶部 -->
           <view class="card-header">
             <view class="card-rarity {{rarityClass}}">{{rarityLabel}}</view>
             <text class="card-number">No.{{quote.id < 10 ? '00' : quote.id < 100 ? '0' : ''}}{{quote.id}}</text>
           </view>
 
-          <!-- 卡面正文 -->
           <view class="card-body">
             <view class="card-quote-mark-top">「</view>
             <text class="card-quote-text">{{quote.content}}</text>
             <view class="card-quote-mark-bottom">」</view>
           </view>
 
-          <!-- 卡面底部 -->
           <view class="card-footer">
             <view class="card-source-row">
               <view class="card-source-line"></view>
@@ -113,55 +129,67 @@
               <view class="card-seal">
                 <text class="card-seal-text">毛选</text>
               </view>
-              <text class="card-author">— 毛泽东</text>
+              <text class="card-author">— 经典摘录</text>
             </view>
           </view>
 
-          <!-- 卡面光泽 -->
           <view class="card-shine"></view>
-          <!-- 卡面边框 -->
           <view class="card-border"></view>
         </view>
       </view>
     </view>
 
-    <!-- 加载骨架 -->
     <view wx:if="{{loading && !quote && drawState === 'idle'}}" class="skeleton-card">
       <view class="skeleton-line long"></view>
       <view class="skeleton-line medium"></view>
       <view class="skeleton-line short"></view>
       <view class="skeleton-source"></view>
     </view>
+    <empty-state
+      wx:if="{{loadError && !quote}}"
+      type="error"
+      title="暂时无法加载"
+      description="请检查网络后重试"
+      buttonText="重新加载"
+      bind:action="onRetry"
+    ></empty-state>
   </view>
 
   <!-- 操作栏 -->
   <view wx:if="{{quote && drawState === 'revealed'}}" class="action-bar {{loading ? 'is-disabled' : ''}}">
     <view class="action-btn refresh" catchtap="onRefresh" hover-class="action-hover">
       <view class="action-icon-wrap {{animating && lastAction === 'refresh' ? 'animate-pop' : ''}}">
-        <app-icon name="refresh" color="#8B7355" size="{{44}}"></app-icon>
+        <app-icon name="refresh" color="#8A7564" size="{{44}}"></app-icon>
       </view>
       <text class="action-label">再拆一个</text>
     </view>
 
     <view class="action-btn like {{liked ? 'active' : ''}}" catchtap="onLike" hover-class="action-hover">
       <view class="action-icon-wrap {{animating && lastAction === 'like' ? 'animate-pop' : ''}}">
-        <app-icon name="heart" color="{{liked ? '#C41E1E' : '#8B7355'}}" size="{{44}}" filled="{{liked}}"></app-icon>
+        <app-icon name="heart" color="{{liked ? '#CF3A32' : '#8A7564'}}" size="{{44}}" filled="{{liked}}"></app-icon>
       </view>
-      <text class="action-label">{{liked ? '已赞' : '点赞'}} {{quote.stat.total || 0}}</text>
+      <text class="action-label">{{liked ? '已赞' : '点赞'}} {{fmt.num(quote.stat.total || 0)}}</text>
     </view>
 
     <view class="action-btn favorite {{favorited ? 'active' : ''}}" catchtap="onFavorite" hover-class="action-hover">
       <view class="action-icon-wrap {{animating && lastAction === 'favorite' ? 'animate-pop' : ''}}">
-        <app-icon name="star" color="{{favorited ? '#B78428' : '#8B7355'}}" size="{{44}}" filled="{{favorited}}"></app-icon>
+        <app-icon name="star" color="{{favorited ? '#A5762C' : '#8A7564'}}" size="{{44}}" filled="{{favorited}}"></app-icon>
       </view>
       <text class="action-label">{{favorited ? '已收藏' : '收藏'}}</text>
     </view>
 
-    <view class="action-btn share" catchtap="onShare" hover-class="action-hover">
-      <view class="action-icon-wrap {{animating && lastAction === 'share' ? 'animate-pop' : ''}}">
-        <app-icon name="share" color="#8B7355" size="{{44}}"></app-icon>
+    <button class="action-btn share share-btn" open-type="share" hover-class="action-hover">
+      <view class="action-icon-wrap">
+        <app-icon name="share" color="#8A7564" size="{{44}}"></app-icon>
       </view>
-      <text class="action-label">分享</text>
+      <text class="action-label">转发</text>
+    </button>
+
+    <view class="action-btn poster" catchtap="onPoster" hover-class="action-hover">
+      <view class="action-icon-wrap {{animating && lastAction === 'poster' ? 'animate-pop' : ''}}">
+        <app-icon name="poster" color="#8A7564" size="{{44}}"></app-icon>
+      </view>
+      <text class="action-label">海报</text>
     </view>
   </view>
 
@@ -170,8 +198,16 @@
     wx:if="{{showSharePoster}}"
     visible="{{showSharePoster}}"
     quote="{{quote}}"
+    quote-id="{{quote.id}}"
     bind:close="onCloseSharePoster"
     bind:generated="onPosterGenerated"
     bind:share="onPosterShare"
   ></share-poster>
+
+  <!-- 分享封面自动生成（离屏，好友分享 + 朋友圈双比例） -->
+  <share-cover
+    quote="{{quote}}"
+    rarity-label="{{rarityLabel}}"
+    bind:coverready="onCoverReady"
+  ></share-cover>
 </view>

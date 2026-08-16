@@ -11,7 +11,7 @@
       <view class="tab-icon">
         <app-icon
           name="{{item.icon}}"
-          color="{{selected === index ? '#E6BE66' : '#B6A89C'}}"
+          color="{{selected === index ? '#CF3A32' : '#6E5F55'}}"
           size="{{40}}"
         ></app-icon>
       </view>

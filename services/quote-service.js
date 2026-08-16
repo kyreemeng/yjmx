@@ -1,183 +1,177 @@
-const { getAllQuotes, getQuoteById } = require('../utils/quote-data');
+const { callFunction } = require('../utils/cloud');
 const storage = require('../utils/storage');
-const { getToday, getWeekKey, getMonthKey, randomInt } = require('../utils/util');
+const { STORAGE_KEYS } = require('../utils/constants');
+const { getChinaDateKey, pickDailyQuote, updateStreak } = require('../utils/daily');
+const { getRarity } = require('../utils/rarity');
 
-function seedTotal(id) {
-  return ((id * 37 + 13) % 500) + 50;
+const CACHE_VERSION = 'v1';
+const EMPTY_STAT = Object.freeze({
+  today: 0,
+  week: 0,
+  month: 0,
+  total: 0,
+});
+
+let memoryQuotes = null;
+let loadingPromise = null;
+
+function normalizeQuotes(payload) {
+  const list = Array.isArray(payload)
+    ? payload
+    : payload && (payload.list || payload.quotes || payload.data);
+  if (!Array.isArray(list)) return [];
+  return list
+    .filter((quote) => quote && Number.isInteger(Number(quote.id)))
+    .map((quote) => ({ ...quote, id: Number(quote.id) }));
 }
 
-function seedToday(id) {
-  return ((id * 17 + 7) % 80) + 5;
+function readCachedQuotes() {
+  if (storage.get(STORAGE_KEYS.QUOTE_CACHE_VERSION, '') !== CACHE_VERSION) return null;
+  const quotes = normalizeQuotes(storage.get(STORAGE_KEYS.QUOTE_CACHE, null));
+  return quotes.length > 0 ? quotes : null;
 }
 
-function seedWeek(id) {
-  return ((id * 23 + 11) % 300) + 20;
+function writeCachedQuotes(quotes) {
+  storage.set(STORAGE_KEYS.QUOTE_CACHE, quotes);
+  storage.set(STORAGE_KEYS.QUOTE_CACHE_VERSION, CACHE_VERSION);
 }
 
-function seedMonth(id) {
-  return ((id * 31 + 19) % 800) + 50;
-}
-
-function normalizeStat(stat) {
-  const week = Math.max(stat.week, stat.today);
-  const month = Math.max(stat.month, week);
-  const total = Math.max(stat.total, month);
-  const changed = week !== stat.week || month !== stat.month || total !== stat.total;
-  stat.week = week;
-  stat.month = month;
-  stat.total = total;
-  return changed;
-}
-
-function ensureStats() {
-  const today = getToday();
-  const weekKey = getWeekKey();
-  const monthKey = getMonthKey();
-
-  let stats = storage.getQuoteStats();
-  let dirty = false;
-  const allQuotes = getAllQuotes();
-
-  allQuotes.forEach((quote) => {
-    if (!stats[quote.id]) {
-      const stat = {
-        today: seedToday(quote.id),
-        week: seedWeek(quote.id),
-        month: seedMonth(quote.id),
-        total: seedTotal(quote.id),
-        lastDate: today,
-        lastWeek: weekKey,
-        lastMonth: monthKey,
-        lastLikeAt: 0,
-      };
-      normalizeStat(stat);
-      stats[quote.id] = stat;
-      dirty = true;
-      return;
-    }
-
-    const s = stats[quote.id];
-    if (s.lastDate !== today) {
-      s.today = seedToday(quote.id);
-      s.lastDate = today;
-      dirty = true;
-    }
-    if (s.lastWeek !== weekKey) {
-      s.week = seedWeek(quote.id);
-      s.lastWeek = weekKey;
-      dirty = true;
-    }
-    if (s.lastMonth !== monthKey) {
-      s.month = seedMonth(quote.id);
-      s.lastMonth = monthKey;
-      dirty = true;
-    }
-    if (normalizeStat(s)) dirty = true;
-  });
-
-  if (dirty) {
-    storage.setQuoteStats(stats);
+async function fetchCloudQuotes() {
+  const result = await callFunction('quotes', { action: 'listActive' });
+  const quotes = normalizeQuotes(result);
+  if (quotes.length === 0) {
+    throw new Error('云端语料为空或格式不正确');
   }
-
-  return stats;
+  writeCachedQuotes(quotes);
+  memoryQuotes = quotes;
+  return memoryQuotes;
 }
 
-function getStats() {
-  return ensureStats();
+async function loadQuotes(force = false) {
+  if (!force && memoryQuotes) return memoryQuotes;
+  if (!force) {
+    const cached = readCachedQuotes();
+    if (cached) {
+      memoryQuotes = cached;
+      return memoryQuotes;
+    }
+  }
+  if (loadingPromise) return loadingPromise;
+
+  loadingPromise = fetchCloudQuotes()
+    .catch((error) => {
+      const cached = readCachedQuotes();
+      if (cached) {
+        memoryQuotes = cached;
+        return memoryQuotes;
+      }
+      const loadError = new Error('金句加载失败：当前无网络且没有可用缓存');
+      loadError.cause = error;
+      throw loadError;
+    })
+    .finally(() => {
+      loadingPromise = null;
+    });
+  return loadingPromise;
 }
 
-function getQuoteByIdWithStats(id) {
-  const stats = getStats();
-  const quote = getQuoteById(id);
+async function getAllQuotes() {
+  const quotes = await loadQuotes();
+  return quotes.map((quote) => ({ ...quote }));
+}
+
+async function getQuoteByIdWithStats(id) {
+  const quotes = await loadQuotes();
+  const quote = quotes.find((item) => item.id === Number(id));
   if (!quote) return null;
-  const stat = stats[id] || { today: 0, week: 0, month: 0, total: 0 };
-  return { ...quote, stat };
+  return { ...quote, stat: { ...EMPTY_STAT } };
 }
 
-function getRandomQuote(excludeIds = []) {
-  const allQuotes = getAllQuotes();
-  const excludeSet = new Set(excludeIds.map(Number));
-  const candidates = allQuotes.filter((q) => !excludeSet.has(q.id));
-  const pool = candidates.length > 0 ? candidates : allQuotes;
-  const idx = randomInt(0, pool.length - 1);
-  return getQuoteByIdWithStats(pool[idx].id);
+async function getRandomQuote(excludeIds = []) {
+  const quotes = await loadQuotes();
+  if (quotes.length === 0) return null;
+  const excluded = new Set((Array.isArray(excludeIds) ? excludeIds : []).map(Number));
+  const candidates = quotes.filter((quote) => !excluded.has(quote.id));
+  const pool = candidates.length > 0 ? candidates : quotes;
+  const quote = pool[Math.floor(Math.random() * pool.length)];
+  return { ...quote, stat: { ...EMPTY_STAT } };
 }
 
-function recordViewedQuote(id) {
-  const today = getToday();
-  const storedDate = storage.getViewedDate();
-  let viewed = storage.getViewedQuotes();
+async function getDailyQuote(date = getChinaDateKey()) {
+  const quote = pickDailyQuote(await loadQuotes(), date);
+  return quote ? { ...quote, stat: { ...EMPTY_STAT } } : null;
+}
 
-  if (storedDate !== today) {
-    viewed = [];
-    storage.setViewedDate(today);
+function recordViewedQuote(id, date = getChinaDateKey()) {
+  const targetId = Number(id);
+  if (!Number.isInteger(targetId) || targetId <= 0) return getViewedQuotes(date);
+
+  const daily = storage.get(STORAGE_KEYS.DAILY_VIEWED, null);
+  const ids = daily && daily.date === date && Array.isArray(daily.ids) ? daily.ids.slice() : [];
+  if (!ids.includes(targetId)) ids.push(targetId);
+  storage.set(STORAGE_KEYS.DAILY_VIEWED, { date, ids });
+
+  const seen = storage.get(STORAGE_KEYS.SEEN_QUOTES, []);
+  const seenIds = Array.isArray(seen) ? seen.map(Number).filter(Number.isInteger) : [];
+  if (!seenIds.includes(targetId)) {
+    seenIds.push(targetId);
+    storage.set(STORAGE_KEYS.SEEN_QUOTES, seenIds);
   }
-
-  if (!viewed.includes(id)) {
-    viewed.push(id);
-    storage.setViewedQuotes(viewed);
-  }
-
-  return viewed;
+  return ids;
 }
 
-function getViewedQuotes() {
-  const today = getToday();
-  const storedDate = storage.getViewedDate();
-  if (storedDate !== today) {
-    storage.setViewedQuotes([]);
-    storage.setViewedDate(today);
-    return [];
-  }
-  return storage.getViewedQuotes();
+function getViewedQuotes(date = getChinaDateKey()) {
+  const daily = storage.get(STORAGE_KEYS.DAILY_VIEWED, null);
+  if (!daily || daily.date !== date || !Array.isArray(daily.ids)) return [];
+  return daily.ids.slice();
 }
 
-function incrementLike(quoteId) {
-  const stats = getStats();
-  if (!stats[quoteId]) return null;
-  stats[quoteId].today += 1;
-  stats[quoteId].week += 1;
-  stats[quoteId].month += 1;
-  stats[quoteId].total += 1;
-  stats[quoteId].lastLikeAt = Date.now();
-  storage.setQuoteStats(stats);
-  return stats[quoteId];
-}
-
-function getRankQuotes(type = 'today') {
-  const stats = getStats();
-  const allQuotes = getAllQuotes();
-  const list = allQuotes.map((q) => {
-    const stat = stats[q.id] || { today: 0, week: 0, month: 0, total: 0 };
-    const count = stat[type] || 0;
-    return { ...q, count };
+async function getCollectionProgress() {
+  const quotes = await loadQuotes();
+  const total = quotes.length;
+  const seen = storage.get(STORAGE_KEYS.SEEN_QUOTES, []);
+  const seenSet = new Set((Array.isArray(seen) ? seen : []).map(Number));
+  const activeIds = new Set(quotes.map((quote) => quote.id));
+  const seenCount = Array.from(seenSet).filter((id) => activeIds.has(id)).length;
+  const count = Math.min(seenCount, total);
+  const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+  const rarityDistribution = {
+    legendary: { collected: 0, total: 0 },
+    epic: { collected: 0, total: 0 },
+    rare: { collected: 0, total: 0 },
+    common: { collected: 0, total: 0 },
+  };
+  quotes.forEach((quote) => {
+    const key = getRarity(quote.id).key;
+    rarityDistribution[key].total += 1;
+    if (seenSet.has(quote.id)) rarityDistribution[key].collected += 1;
   });
-
-  list.sort((a, b) => {
-    if (b.count !== a.count) return b.count - a.count;
-    const statA = stats[a.id] || {};
-    const statB = stats[b.id] || {};
-    return (statB.lastLikeAt || 0) - (statA.lastLikeAt || 0);
-  });
-  return list.slice(0, 50);
+  return {
+    seen: count,
+    collected: count,
+    total,
+    seenCount: count,
+    totalCount: total,
+    percent,
+    rarityDistribution,
+  };
 }
 
-function searchQuotes(keyword) {
-  if (!keyword) return [];
-  const allQuotes = getAllQuotes();
-  const lower = keyword.toLowerCase();
-  return allQuotes.filter(
-    (q) => q.content.toLowerCase().includes(lower) || q.source.toLowerCase().includes(lower)
-  );
+function updateVisitStreak(date = getChinaDateKey()) {
+  const previous = storage.get(STORAGE_KEYS.VISIT_STREAK, null);
+  const next = updateStreak(previous, date);
+  storage.set(STORAGE_KEYS.VISIT_STREAK, next);
+  return { ...next, updated: !previous || previous.lastDate !== date };
 }
 
 module.exports = {
-  getStats,
+  loadQuotes,
+  getAllQuotes,
   getQuoteByIdWithStats,
   getRandomQuote,
+  getDailyQuote,
   recordViewedQuote,
   getViewedQuotes,
-  incrementLike,
-  getRankQuotes,
-  searchQuotes,
+  getCollectionProgress,
+  updateVisitStreak,
 };

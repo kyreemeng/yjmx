@@ -31,16 +31,6 @@ const storage = {
     }
   },
 
-  clear() {
-    try {
-      wx.clearStorageSync();
-      return true;
-    } catch (err) {
-      console.error('Storage clear failed', err);
-      return false;
-    }
-  },
-
   getUserInfo() {
     return this.get(STORAGE_KEYS.USER_INFO, null);
   },
@@ -51,46 +41,6 @@ const storage = {
 
   removeUserInfo() {
     return this.remove(STORAGE_KEYS.USER_INFO);
-  },
-
-  getLikedQuotes() {
-    return this.get(STORAGE_KEYS.LIKED_QUOTES, {});
-  },
-
-  setLikedQuotes(liked) {
-    return this.set(STORAGE_KEYS.LIKED_QUOTES, liked);
-  },
-
-  getFavoriteQuotes() {
-    return this.get(STORAGE_KEYS.FAVORITE_QUOTES, {});
-  },
-
-  setFavoriteQuotes(favorites) {
-    return this.set(STORAGE_KEYS.FAVORITE_QUOTES, favorites);
-  },
-
-  getQuoteStats() {
-    return this.get(STORAGE_KEYS.QUOTE_STATS, {});
-  },
-
-  setQuoteStats(stats) {
-    return this.set(STORAGE_KEYS.QUOTE_STATS, stats);
-  },
-
-  getViewedQuotes() {
-    return this.get(STORAGE_KEYS.VIEWED_QUOTES, []);
-  },
-
-  setViewedQuotes(viewed) {
-    return this.set(STORAGE_KEYS.VIEWED_QUOTES, viewed);
-  },
-
-  getViewedDate() {
-    return this.get(STORAGE_KEYS.VIEWED_DATE, '');
-  },
-
-  setViewedDate(date) {
-    return this.set(STORAGE_KEYS.VIEWED_DATE, date);
   },
 };
 

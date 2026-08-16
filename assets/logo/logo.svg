@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- 方案 C · 毛选印记：磨砂玻璃 squircle + 红印章竖排「毛选」+ 金色落款点 -->
+  <defs>
+    <linearGradient id="glassC" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.94"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="sheenC" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="redC" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D8483E"/>
+      <stop offset="0.5" stop-color="#CF3A32"/>
+      <stop offset="1" stop-color="#AD2822"/>
+    </linearGradient>
+    <filter id="sealShadowC" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="16" stdDeviation="26" flood-color="#8A2B24" flood-opacity="0.35"/>
+    </filter>
+    <clipPath id="tileC">
+      <rect x="32" y="32" width="960" height="960" rx="230"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#tileC)">
+    <rect x="32" y="32" width="960" height="960" fill="#F6EEE5"/>
+    <circle cx="170" cy="200" r="300" fill="#D6BEFF" opacity="0.4"/>
+    <circle cx="860" cy="180" r="280" fill="#FFB294" opacity="0.44"/>
+    <circle cx="850" cy="860" r="320" fill="#B2CDFF" opacity="0.36"/>
+    <circle cx="200" cy="870" r="300" fill="#FFC484" opacity="0.44"/>
+    <rect x="32" y="32" width="960" height="960" fill="url(#glassC)"/>
+    <rect x="32" y="32" width="960" height="180" fill="url(#sheenC)"/>
+  </g>
+
+  <rect x="35" y="35" width="954" height="954" rx="227" fill="none" stroke="#FFFFFF" stroke-opacity="0.92" stroke-width="7"/>
+  <rect x="32" y="32" width="960" height="960" rx="230" fill="none" stroke="#7A5A42" stroke-opacity="0.1" stroke-width="2"/>
+
+  <g filter="url(#sealShadowC)">
+    <rect x="292" y="222" width="440" height="580" rx="104" fill="url(#redC)" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="4"/>
+  </g>
+  <rect x="322" y="252" width="380" height="520" rx="82" fill="none" stroke="#E8C284" stroke-opacity="0.85" stroke-width="5"/>
+
+  <text x="512" y="452" text-anchor="middle"
+        font-family="'Songti SC','STSong','Noto Serif SC',serif" font-weight="900" font-size="212"
+        fill="#FFFDF8">毛</text>
+  <text x="512" y="688" text-anchor="middle"
+        font-family="'Songti SC','STSong','Noto Serif SC',serif" font-weight="900" font-size="212"
+        fill="#FFFDF8">选</text>
+
+  <rect x="706" y="800" width="26" height="26" rx="8" fill="#C9943F"/>
+</svg>

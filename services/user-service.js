@@ -1,7 +1,5 @@
-const { getQuoteById } = require('../utils/quote-data');
 const storage = require('../utils/storage');
 const { DEFAULT_AVATAR } = require('../utils/constants');
-const { showToast } = require('../utils/util');
 
 function isLogin() {
   const userInfo = storage.getUserInfo();

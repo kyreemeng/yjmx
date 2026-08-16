@@ -12,15 +12,16 @@
   ],
   "window": {
     "backgroundTextStyle": "dark",
-    "navigationBarBackgroundColor": "#FFF8F0",
+    "navigationBarBackgroundColor": "#FBF9F6",
     "navigationBarTitleText": "一句毛选",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#FFF8F0"
+    "navigationStyle": "custom",
+    "backgroundColor": "#FBF9F6"
   },
   "tabBar": {
     "custom": true,
-    "color": "#999999",
-    "selectedColor": "#C41E1E",
+    "color": "#7A6A5C",
+    "selectedColor": "#CF3A32",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "black",
     "list": [
@@ -39,6 +40,7 @@
     ]
   },
   "style": "v2",
+  "cloud": true,
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"
 }

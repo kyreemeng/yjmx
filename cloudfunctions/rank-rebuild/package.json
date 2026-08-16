@@ -1,0 +1,9 @@
+{
+  "name": "rank-rebuild",
+  "version": "1.0.0",
+  "description": "排行日桶预聚合快照定时云函数",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

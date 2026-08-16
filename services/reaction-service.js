@@ -5,7 +5,8 @@
 // 3. 操作采用乐观更新：先改本地缓存并刷新界面，云端成功则确认，失败则回滚并提示。
 const { callFunction } = require('../utils/cloud');
 const storage = require('../utils/storage');
-const { getQuoteById } = require('../utils/quote-data');
+const quoteService = require('./quote-service');
+const { getRarity } = require('../utils/rarity');
 const { formatTime, truncateText, showToast } = require('../utils/util');
 
 const CACHE_KEYS = {
@@ -103,11 +104,14 @@ async function add(type, targetId, { silent = false } = {}) {
 
 async function remove(type, targetId, { silent = false } = {}) {
   const tid = requireTargetId(targetId);
+  const before = !!readCache(type)[tid];
+  setCache(type, tid, false); // 乐观取消
   try {
-    const res = await callFunction('reaction', { action: 'remove', type, targetId: tid });
+    await callFunction('reaction', { action: 'remove', type, targetId: tid });
     setCache(type, tid, false);
     return true;
   } catch (err) {
+    setCache(type, tid, before);
     if (!silent) showToast('操作失败，请重试');
     throw err;
   }
@@ -120,14 +124,21 @@ async function getList(type, limit) {
 }
 
 // 列表 + 金句内容：直接产出页面所需的展示结构（含 summary / timeText）
-async function getListWithQuotes(type, limit) {
-  const list = await getList(type, limit);
+async function getListWithQuotes(type, limit = 500) {
+  const safeLimit = Math.min(Math.max(Number(limit) || 500, 1), 500);
+  const list = await getList(type, safeLimit);
+  const quotes = await quoteService.loadQuotes();
+  const quoteMap = new Map(quotes.map((quote) => [Number(quote.id), quote]));
   return list
     .map((item) => {
-      const quote = getQuoteById(item.targetId);
+      const quote = quoteMap.get(Number(item.targetId));
       if (!quote) return null;
+      const rarity = getRarity(quote.id);
       return {
         ...quote,
+        sourceKey: quote.sourceKey || '',
+        rarityKey: rarity.key,
+        rarityLabel: rarity.label,
         summary: truncateText(quote.content, 30),
         timeText: formatTime(item.createTime),
         createTime: item.createTime,
@@ -146,6 +157,29 @@ async function getCount(type) {
   }
 }
 
+// 批量查询金句全网点赞数；失败时返回 0，不打断页面
+async function getLikeCounts(targetIds) {
+  const input = Array.isArray(targetIds) ? targetIds : [targetIds];
+  const ids = Array.from(new Set(input.map(Number).filter(Number.isFinite)));
+  const result = {};
+  ids.forEach((id) => {
+    result[id] = 0;
+  });
+  if (ids.length === 0) return result;
+
+  try {
+    const res = await callFunction('reaction', { action: 'likeCounts', targetIds: ids });
+    if (res && res.success && res.map) {
+      ids.forEach((id) => {
+        result[id] = Number(res.map[id]) || 0;
+      });
+    }
+  } catch (err) {
+    console.error('getLikeCounts failed', err);
+  }
+  return result;
+}
+
 module.exports = {
   batchStatus,
   getStatus,
@@ -155,4 +189,5 @@ module.exports = {
   getList,
   getListWithQuotes,
   getCount,
+  getLikeCounts,
 };

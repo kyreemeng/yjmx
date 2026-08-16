@@ -1,3 +1,4 @@
+<nav-bar title="点赞记录" back="{{true}}"></nav-bar>
 <view class="container">
   <view class="page-hero">
     <view class="hero-seal"><text>赞</text></view>
@@ -34,7 +35,7 @@
           catchtap="onLike"
           hover-class="item-action-pressed"
         >
-          <app-icon name="heart" color="#C41E1E" size="{{30}}" filled="{{true}}"></app-icon>
+          <app-icon name="heart" color="#CF3A32" size="{{30}}" filled="{{true}}"></app-icon>
           <text>已点赞</text>
         </view>
         <view
@@ -45,7 +46,7 @@
         >
           <app-icon
             name="star"
-            color="{{item.favorited ? '#B78428' : '#7A5139'}}"
+            color="{{item.favorited ? '#A5762C' : '#6E5F55'}}"
             size="{{30}}"
             filled="{{item.favorited}}"
           ></app-icon>
@@ -56,8 +57,16 @@
   </view>
 
   <empty-state
-    wx:if="{{!loading && list.length === 0}}"
+    wx:if="{{!loading && !error && list.length === 0}}"
     type="like"
     bind:action="onGoHome"
+  ></empty-state>
+  <empty-state
+    wx:if="{{!loading && error && list.length === 0}}"
+    type="error"
+    title="记录加载失败"
+    description="请检查网络后重试"
+    buttonText="重试"
+    bind:action="onRetry"
   ></empty-state>
 </view>

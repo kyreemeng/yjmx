@@ -1,23 +1,38 @@
+const { consumeLaunchShare } = require('./utils/share');
+const env = require('./utils/env');
+const analytics = require('./services/analytics-service');
+const quoteService = require('./services/quote-service');
+
 App({
   globalData: {
     userInfo: null,
     isLogin: false,
     systemInfo: null,
     launchOptions: null,
+    shareEntry: null,
   },
 
   onLaunch(options) {
-    this.globalData.launchOptions = options;
+    this.globalData.launchOptions = options || {};
+    this.globalData.shareEntry = consumeLaunchShare(options || {});
     this.initCloud();
+    quoteService.loadQuotes(true).catch(() => {
+      // 首次离线由页面展示可重试错误；有缓存时 quote-service 会自动降级。
+    });
     this.initSystemInfo();
     this.initUserInfo();
+    analytics.track('app_open', {
+      phase: 'launch',
+      scene: options && options.scene,
+      path: options && options.path,
+    });
   },
 
   initCloud() {
     try {
       if (typeof wx !== 'undefined' && wx.cloud) {
         wx.cloud.init({
-          env: 'cloud1-d9gudmlaz44a63ab3',
+          env: env.cloudEnvId,
           traceUser: true,
         });
       }
@@ -27,7 +42,16 @@ App({
   },
 
   onShow(options) {
-    this.globalData.launchOptions = options;
+    this.globalData.launchOptions = options || this.globalData.launchOptions || {};
+    const entry = consumeLaunchShare(options || {});
+    if (entry) {
+      this.globalData.shareEntry = entry;
+    }
+    analytics.track('app_open', {
+      phase: 'show',
+      scene: options && options.scene,
+      path: options && options.path,
+    });
   },
 
   initSystemInfo() {

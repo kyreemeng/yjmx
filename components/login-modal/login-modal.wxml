@@ -1,7 +1,7 @@
 <view wx:if="{{show}}" class="login-modal" bindtap="onOverlayTap">
   <view class="login-dialog" catchtap="preventBubble">
-    <view class="login-title">登录后收藏金句</view>
-    <view class="login-desc">完善头像与昵称，建立你的专属收藏夹</view>
+    <view class="login-title">完善个人资料</view>
+    <view class="login-desc">填写头像与昵称，仅用于展示你的阅读身份</view>
     <form bindsubmit="onSubmit">
       <button class="avatar-picker" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
         <image class="avatar-preview" src="{{avatarUrl}}" mode="aspectFill"></image>
@@ -17,8 +17,8 @@
         bindinput="onNicknameInput"
       />
       <view class="login-actions">
-        <button class="login-btn" form-type="submit">完成登录</button>
-        <view class="login-cancel" bindtap="onClose">暂不登录</view>
+        <button class="login-btn" form-type="submit">保存资料</button>
+        <view class="login-cancel" bindtap="onClose">暂不完善</view>
       </view>
     </form>
   </view>

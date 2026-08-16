@@ -1,74 +1,106 @@
 .container {
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse at 50% -10%, rgba(196, 30, 30, 0.14), transparent 40%),
-    linear-gradient(165deg, #1A0F08 0%, #2C1810 55%, #0D0703 100%);
-  padding: 42rpx 0 calc(140rpx + env(safe-area-inset-bottom));
+  background: var(--aurora-bg);
+  color: #2A1E18;
+  padding: 28rpx 0 calc(150rpx + env(safe-area-inset-bottom));
 }
 
 .profile-panel {
   position: relative;
   margin: 0 32rpx;
-  padding: 42rpx 32rpx 34rpx;
+  padding: 40rpx 32rpx 32rpx;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 15%, rgba(196, 30, 30, 0.25), transparent 26%),
-    linear-gradient(135deg, rgba(75, 38, 25, 0.96), rgba(31, 15, 8, 0.98));
-  border: 1rpx solid rgba(183, 132, 40, 0.32);
-  border-radius: 14rpx;
-  box-shadow: 0 14rpx 42rpx rgba(0, 0, 0, 0.3), inset 0 1rpx 0 rgba(245, 235, 216, 0.12);
+    radial-gradient(circle at 18% 12%, rgba(207, 58, 50, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 88%, rgba(201, 148, 63, 0.1), transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.66) 100%);
+  backdrop-filter: blur(30rpx) saturate(180%);
+  -webkit-backdrop-filter: blur(30rpx) saturate(180%);
+  border: 1rpx solid rgba(255, 255, 255, 0.82);
+  border-radius: 28rpx;
+  box-shadow:
+    0 12rpx 36rpx rgba(120, 90, 60, 0.12),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.9);
 }
 
 .panel-stamp {
   position: absolute;
-  top: 24rpx;
-  right: 30rpx;
-  width: 64rpx;
-  height: 64rpx;
+  top: 22rpx;
+  right: 28rpx;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.54) 100%);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 6rpx 14rpx rgba(120, 90, 60, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.9);
+}
+
+.panel-stamp .seal-inner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 50rpx;
+  height: 50rpx;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2rpx solid rgba(245, 235, 216, 0.5);
-  border-radius: 7rpx;
-  color: rgba(245, 235, 216, 0.82);
-  background: rgba(196, 30, 30, 0.72);
-  transform: rotate(7deg);
+  border-radius: 12rpx;
+  background: linear-gradient(135deg, #D8483E 0%, #CF3A32 55%, #AD2822 100%);
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 4rpx 10rpx rgba(138, 43, 36, 0.24),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.4);
+}
+
+.panel-stamp .seal-dot {
+  position: absolute;
+  right: 7rpx;
+  bottom: 7rpx;
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 2rpx;
+  background: linear-gradient(135deg, #D8AC5C 0%, #A5762C 100%);
 }
 
 .panel-stamp text {
-  font-size: 30rpx;
+  font-size: 26rpx;
   font-family: 'Noto Serif CJK SC', 'Songti SC', serif;
   font-weight: 700;
+  color: #FFF9F4;
 }
 
 .user-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8rpx 0 18rpx;
+  padding: 8rpx 0 12rpx;
 }
 
 .user-avatar {
-  width: 160rpx;
-  height: 160rpx;
+  width: 144rpx;
+  height: 144rpx;
   border-radius: 50%;
-  background: #EDE0C8;
-  margin-bottom: 24rpx;
-  border: 5rpx solid rgba(245, 235, 216, 0.9);
-  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.28);
+  background: #EDDFD2;
+  margin-bottom: 20rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8rpx 24rpx rgba(120, 90, 60, 0.14);
 }
 
 .user-name {
   font-size: 32rpx;
-  font-weight: 500;
-  color: #F5EBD8;
-  font-family: 'Noto Serif CJK SC', 'Songti SC', serif;
-  margin-bottom: 8rpx;
+  font-weight: 600;
+  color: #241A15;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+  margin-bottom: 6rpx;
+  letter-spacing: -0.3rpx;
 }
 
 .user-tip {
   font-size: 26rpx;
-  color: rgba(245, 235, 216, 0.58);
+  color: #6E5F55;
 }
 
 .login-area {
@@ -83,14 +115,14 @@
   justify-content: center;
   gap: 12rpx;
   line-height: normal;
-  color: #F5EBD8;
+  color: #FFF9F4;
   font-size: 29rpx;
   font-weight: 600;
-  letter-spacing: 2rpx;
-  background: linear-gradient(135deg, #C41E1E, #8D1414);
-  border: 1rpx solid rgba(245, 235, 216, 0.34);
-  border-radius: 10rpx;
-  box-shadow: 0 7rpx 16rpx rgba(0, 0, 0, 0.26), inset 0 1rpx 0 rgba(255, 255, 255, 0.22);
+  letter-spacing: 0.5rpx;
+  background: linear-gradient(135deg, #D8483E, #AD2822);
+  border: 1rpx solid rgba(255, 255, 255, 0.4);
+  border-radius: 20rpx;
+  box-shadow: 0 6rpx 16rpx rgba(207, 58, 50, 0.22), inset 0 1rpx 0 rgba(255, 255, 255, 0.4);
 }
 
 .login-btn::after {
@@ -98,26 +130,109 @@
 }
 
 .login-btn:active {
-  transform: translateY(2rpx);
-  opacity: 0.9;
+  transform: scale(0.97);
+  opacity: 0.94;
+  transition: transform 100ms ease-out;
+}
+
+.reading-summary {
+  margin: 24rpx 32rpx 0;
+  padding: 28rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10rpx 28rpx rgba(120, 90, 60, 0.1);
+}
+
+.summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.summary-title,
+.summary-streak {
+  display: block;
+}
+
+.summary-title {
+  font-size: 30rpx;
+  color: #241A15;
+  font-weight: 700;
+}
+
+.summary-streak,
+.summary-count {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #6E5F55;
+}
+
+.summary-percent {
+  font-size: 36rpx;
+  color: #AD2822;
+  font-weight: 700;
+}
+
+.rarity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12rpx;
+  margin-top: 22rpx;
+}
+
+.rarity-stat {
+  min-height: 88rpx;
+  padding: 14rpx 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16rpx;
+  background: rgba(140, 118, 96, 0.07);
+}
+
+.rarity-name,
+.rarity-count,
+.summary-retry {
+  font-size: 24rpx;
+}
+
+.rarity-name {
+  color: #5F5148;
+}
+
+.rarity-count {
+  color: #241A15;
+  font-weight: 700;
+}
+
+.summary-retry {
+  min-height: 88rpx;
+  margin-top: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #AD2822;
 }
 
 .menu-list {
-  margin: 26rpx 32rpx 0;
-  background: linear-gradient(135deg, rgba(245, 235, 216, 0.98), rgba(234, 220, 195, 0.98));
-  border: 1rpx solid rgba(183, 132, 40, 0.38);
-  border-radius: 12rpx;
+  margin: 24rpx 32rpx 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.68) 100%);
+  backdrop-filter: blur(26rpx) saturate(170%);
+  -webkit-backdrop-filter: blur(26rpx) saturate(170%);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  border-radius: 24rpx;
   overflow: hidden;
-  box-shadow: 0 10rpx 28rpx rgba(0, 0, 0, 0.24), inset 0 1rpx 0 rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10rpx 28rpx rgba(120, 90, 60, 0.1), inset 0 1rpx 0 rgba(255, 255, 255, 0.88);
 }
 
 .menu-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 112rpx;
-  padding: 0 32rpx;
-  border-bottom: 1rpx solid rgba(122, 81, 57, 0.12);
+  height: 108rpx;
+  padding: 0 28rpx;
+  border-bottom: 1rpx solid rgba(140, 118, 96, 0.1);
 }
 
 .menu-item:last-child {
@@ -130,9 +245,9 @@
 }
 
 .menu-icon {
-  width: 48rpx;
-  height: 48rpx;
-  margin-right: 20rpx;
+  width: 44rpx;
+  height: 44rpx;
+  margin-right: 18rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,9 +255,9 @@
 
 .menu-label {
   font-size: 30rpx;
-  color: #2A170E;
-  font-family: 'Noto Serif CJK SC', 'Songti SC', serif;
-  font-weight: 600;
+  color: #241A15;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+  font-weight: 500;
 }
 
 .menu-right {
@@ -152,35 +267,36 @@
 
 .menu-count {
   font-size: 28rpx;
-  color: #856A56;
-  margin-right: 12rpx;
+  color: #6E5F55;
+  margin-right: 8rpx;
+  font-variant-numeric: tabular-nums;
 }
 
 .menu-item-pressed {
-  background: #F5EBD8;
-  transform: translateY(2rpx) scale(0.99);
+  background: rgba(140, 118, 96, 0.06);
 }
 
 .logout-area {
-  margin-top: 36rpx;
+  margin-top: 32rpx;
   padding: 0 32rpx;
 }
 
 .logout-btn {
   width: 100%;
   height: 88rpx;
-  line-height: 88rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: normal;
-  background: rgba(245, 235, 216, 0.08);
-  color: rgba(245, 235, 216, 0.8);
-  border: 1rpx solid rgba(245, 235, 216, 0.32);
-  border-radius: 10rpx;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20rpx) saturate(160%);
+  -webkit-backdrop-filter: blur(20rpx) saturate(160%);
+  color: #CF3A32;
+  border: 1rpx solid rgba(255, 255, 255, 0.7);
+  border-radius: 20rpx;
   font-size: 28rpx;
   font-weight: 500;
-  letter-spacing: 2rpx;
+  letter-spacing: 0;
 }
 
 .logout-btn::after {
@@ -188,6 +304,6 @@
 }
 
 .logout-btn:active {
-  background: rgba(196, 30, 30, 0.25);
-  transform: translateY(2rpx);
+  background: rgba(207, 58, 50, 0.08);
+  transform: scale(0.98);
 }

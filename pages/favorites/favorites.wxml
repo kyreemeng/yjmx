@@ -1,3 +1,4 @@
+<nav-bar title="我的收藏" back="{{true}}"></nav-bar>
 <view class="container">
   <view class="page-hero">
     <view class="hero-seal"><text>藏</text></view>
@@ -6,6 +7,37 @@
       <text class="page-subtitle">轻触下方图标，管理收藏与点赞</text>
     </view>
   </view>
+
+  <view class="collection-summary">
+    <view>
+      <text class="summary-label">图鉴进度</text>
+      <text class="summary-value">{{collectionProgress.collected}} / {{collectionProgress.total}}</text>
+    </view>
+    <text class="summary-percent">{{collectionProgress.percent}}%</text>
+  </view>
+
+  <scroll-view scroll-x class="filter-scroll" show-scrollbar="{{false}}">
+    <view class="filter-row">
+      <view
+        wx:for="{{sourceFilters}}"
+        wx:key="key"
+        class="filter-chip {{activeSource === item.key ? 'active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onSourceFilter"
+      >{{item.label}}</view>
+    </view>
+  </scroll-view>
+  <scroll-view scroll-x class="filter-scroll rarity-filter" show-scrollbar="{{false}}">
+    <view class="filter-row">
+      <view
+        wx:for="{{rarityFilters}}"
+        wx:key="key"
+        class="filter-chip {{activeRarity === item.key ? 'active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onRarityFilter"
+      >{{item.label}}</view>
+    </view>
+  </scroll-view>
 
   <view wx:if="{{loading && list.length === 0}}" class="skeleton-list">
     <view wx:for="{{[1,2,3]}}" wx:key="*this" class="skeleton-item">
@@ -34,7 +66,7 @@
           catchtap="onFavorite"
           hover-class="item-action-pressed"
         >
-          <app-icon name="star" color="#B78428" size="{{30}}" filled="{{true}}"></app-icon>
+          <app-icon name="star" color="#A5762C" size="{{30}}" filled="{{true}}"></app-icon>
           <text>已收藏</text>
         </view>
         <view
@@ -45,7 +77,7 @@
         >
           <app-icon
             name="heart"
-            color="{{item.liked ? '#C41E1E' : '#7A5139'}}"
+            color="{{item.liked ? '#CF3A32' : '#8A7564'}}"
             size="{{30}}"
             filled="{{item.liked}}"
           ></app-icon>
@@ -56,8 +88,22 @@
   </view>
 
   <empty-state
-    wx:if="{{!loading && list.length === 0}}"
+    wx:if="{{!loading && !error && allList.length === 0}}"
     type="favorite"
     bind:action="onGoHome"
+  ></empty-state>
+  <empty-state
+    wx:if="{{!loading && !error && allList.length > 0 && list.length === 0}}"
+    type="search"
+    title="没有符合条件的收藏"
+    description="换个主题或稀有度试试"
+  ></empty-state>
+  <empty-state
+    wx:if="{{!loading && error && list.length === 0}}"
+    type="error"
+    title="收藏加载失败"
+    description="请检查网络后重试"
+    buttonText="重试"
+    bind:action="onRetry"
   ></empty-state>
 </view>

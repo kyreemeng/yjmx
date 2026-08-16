@@ -1,20 +1,46 @@
-/* 全局样式 */
+/* ============================================================
+   全局样式 · iOS Liquid Glass（浅色液玻璃）
+   设计令牌：毛选红 + 暖金 作为精致点缀，白色半透明磨砂玻璃作为主体材质
+   ============================================================ */
 page {
-  --primary: #C41E1E;
-  --primary-dark: #A01818;
-  --secondary: #D4A853;
-  --bg-warm: #FFF8F0;
-  --bg-light: #FAFAFA;
-  --card: #FFFFFF;
-  --text-main: #2C1810;
-  --text-sub: #8B7355;
-  --text-gray: #6F6259;
-  --divider: #F0EDE8;
-  --success: #52C41A;
-  --warning: #FAAD14;
+  /* 品牌色 */
+  --primary: #CF3A32;
+  --primary-deep: #AD2822;
+  --primary-soft: rgba(207, 58, 50, 0.12);
+  --gold: #C9943F;
+  --gold-deep: #A5762C;
+  /* 金色作为文字时需 ≥4.5:1，用于收藏态标签、TOP3 名次等 */
+  --gold-text: #8C6A1F;
+  --gold-soft: rgba(201, 148, 63, 0.16);
 
-  background-color: var(--bg-warm);
-  color: var(--text-main);
+  /* 文字 */
+  --ink: #2A1E18;
+  --ink-2: #6E5F55;
+  /* 三级文字：从 #A28F7D 加深至 #7A6A5C，保证对米白底 ≥4.5:1（WCAG AA） */
+  --ink-3: #7A6A5C;
+  --on-glass: #241A15;
+
+  /* 玻璃材质 */
+  --glass: rgba(255, 255, 255, 0.62);
+  --glass-strong: rgba(255, 255, 255, 0.8);
+  --glass-soft: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.72);
+  --glass-hair: rgba(255, 255, 255, 0.55);
+
+  /* 底色 */
+  --bg-0: #FBF9F6;
+  --bg-1: #F2EBE4;
+
+  /* 暖色 aurora 背景（统一变量，页面复用，避免 6 处重复粘贴） */
+  --aurora-bg: radial-gradient(circle at 12% 6%, rgba(255, 178, 148, 0.42), transparent 32%),
+    radial-gradient(circle at 92% 4%, rgba(255, 210, 160, 0.36), transparent 34%),
+    radial-gradient(circle at 88% 88%, rgba(255, 196, 132, 0.34), transparent 40%),
+    radial-gradient(circle at 8% 94%, rgba(232, 180, 140, 0.26), transparent 40%),
+    radial-gradient(circle at 50% 46%, rgba(255, 226, 200, 0.26), transparent 60%),
+    linear-gradient(180deg, #FBF9F6 0%, #F3ECE3 100%);
+
+  background-color: var(--bg-0);
+  color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
@@ -24,10 +50,16 @@ view, text, button, input, scroll-view, swiper, cover-view {
   box-sizing: border-box;
 }
 
+/* 暖色 aurora：仅粉橙 / 暖金，避免紫调（Apple 克制氛围） */
+.aurora-bg {
+  background: var(--aurora-bg);
+}
+
 .container {
   min-height: 100vh;
-  background-color: var(--bg-warm);
-  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+  background: var(--aurora-bg);
+  color: var(--ink);
+  padding-bottom: calc(150rpx + env(safe-area-inset-bottom));
 }
 
 /* 安全区底部 */
@@ -35,17 +67,41 @@ view, text, button, input, scroll-view, swiper, cover-view {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* 通用按钮 */
+/* ============ 磨砂玻璃通用材质 ============ */
+.glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.58) 100%);
+  backdrop-filter: blur(28rpx) saturate(170%);
+  -webkit-backdrop-filter: blur(28rpx) saturate(170%);
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 12rpx 40rpx rgba(120, 90, 60, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.85);
+}
+
+.glass-strong {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.72) 100%);
+  backdrop-filter: blur(36rpx) saturate(185%);
+  -webkit-backdrop-filter: blur(36rpx) saturate(185%);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 14rpx 44rpx rgba(110, 80, 55, 0.12),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.92);
+}
+
+/* ============ 通用按钮 ============ */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: linear-gradient(135deg, #D8483E 0%, var(--primary) 46%, var(--primary-deep) 100%);
   color: #fff;
   border-radius: 44rpx;
   font-size: 32rpx;
-  font-weight: 500;
+  font-weight: 600;
   height: 88rpx;
   line-height: 88rpx;
   text-align: center;
-  border: none;
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 8rpx 20rpx rgba(207, 58, 50, 0.2),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.45);
 }
 
 .btn-primary::after {
@@ -53,52 +109,61 @@ view, text, button, input, scroll-view, swiper, cover-view {
 }
 
 .btn-primary:active {
-  opacity: 0.9;
+  transform: scale(0.97);
+  opacity: 0.94;
+  transition: transform 100ms ease-out, opacity 100ms ease-out;
 }
 
 .btn-ghost {
-  background: transparent;
-  color: var(--text-sub);
-  border: 1rpx solid var(--divider);
+  background: var(--glass);
+  backdrop-filter: blur(24rpx) saturate(160%);
+  -webkit-backdrop-filter: blur(24rpx) saturate(160%);
+  color: var(--ink-2);
+  border: 1rpx solid var(--glass-border);
   border-radius: 44rpx;
   font-size: 32rpx;
   height: 88rpx;
   line-height: 88rpx;
   text-align: center;
+  box-shadow: 0 10rpx 26rpx rgba(120, 90, 60, 0.12);
 }
 
 .btn-ghost::after {
   border: none;
 }
 
-/* Toast 样式由微信统一提供，这里无需自定义 */
+.btn-ghost:active {
+  transform: scale(0.97);
+}
+
+/* Toast 样式由微信统一提供 */
 
 /* 隐藏 */
 .hidden {
   display: none !important;
 }
 
-/* 页面淡入 */
+/* ============ 动画 ============ */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* 缩放回弹 */
 @keyframes scalePop {
   0% { transform: scale(1); }
-  50% { transform: scale(1.25); }
+  45% { transform: scale(1.22); }
   100% { transform: scale(1); }
 }
 
 .animate-pop {
-  animation: scalePop 200ms ease-out;
+  animation: scalePop 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .animate-fade-in {
   animation: fadeIn 300ms ease-in-out;
 }
 
+/* ============ 骨架屏 ============ */
 .skeleton-line,
 .skeleton-source,
 .skeleton-rank,
@@ -116,7 +181,7 @@ view, text, button, input, scroll-view, swiper, cover-view {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.72) 48%, transparent 76%);
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.7) 48%, transparent 76%);
   transform: translateX(-100%);
   animation: skeletonShimmer 1.4s ease-in-out infinite;
 }

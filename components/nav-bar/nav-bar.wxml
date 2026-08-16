@@ -1,0 +1,13 @@
+<view class="nav-root" style="height: {{statusBarHeight + navBarHeight}}px;">
+  <view
+    class="nav-fixed"
+    style="padding-top: {{statusBarHeight}}px; height: {{statusBarHeight + navBarHeight}}px;"
+  >
+    <view class="nav-content" style="height: {{navBarHeight}}px;">
+      <view wx:if="{{back}}" class="nav-back" hover-class="nav-back-pressed" bindtap="onBack">
+        <app-icon name="chevronLeft" color="#241A15" size="{{40}}"></app-icon>
+      </view>
+      <text class="nav-title">{{title}}</text>
+    </view>
+  </view>
+</view>

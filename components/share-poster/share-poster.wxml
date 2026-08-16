@@ -1,16 +1,24 @@
-<view wx:if="{{visible}}" class="poster-modal" bindtap="onClose">
-  <view class="poster-wrap" catchtap="preventBubble">
+<!-- catchtouchmove：拦截触摸滑动；canvas 另加 touch-shield，避免原生层把滑动交给页面 -->
+<view
+  wx:if="{{visible}}"
+  class="poster-modal"
+  catchtouchmove="onPreventMove"
+  bindtap="onClose"
+>
+  <view class="poster-wrap" catchtap="preventBubble" catchtouchmove="onPreventMove">
     <view class="poster-title">生成分享卡片</view>
     <view
       class="poster-canvas-wrap"
       style="width: {{previewWidth}}rpx; height: {{previewHeight}}rpx;"
+      catchtouchmove="onPreventMove"
     >
       <canvas
         type="2d"
         id="posterCanvas"
         class="poster-canvas"
-        style="transform: scale({{previewScale}}); transform-origin: top left;"
+        style="width: {{previewWidth}}rpx; height: {{previewHeight}}rpx;"
       ></canvas>
+      <view class="poster-touch-shield" catchtouchmove="onPreventMove" catchtap="preventBubble"></view>
       <view wx:if="{{generating}}" class="poster-loading">
         <view class="loading-spinner"></view>
         <text>生成卡片中...</text>

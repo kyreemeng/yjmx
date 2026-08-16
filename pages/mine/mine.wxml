@@ -1,18 +1,40 @@
+<nav-bar title="我的"></nav-bar>
 <view class="container">
   <!-- 用户信息区 -->
   <view class="profile-panel">
-    <view class="panel-stamp"><text>我</text></view>
+    <view class="panel-stamp">
+      <view class="seal-inner"><text>我</text></view>
+      <view class="seal-dot"></view>
+    </view>
     <view class="user-header" bindtap="onTapHeader">
       <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
       <text class="user-name">{{userInfo.nickName}}</text>
-      <text wx:if="{{!isLogin}}" class="user-tip">登录后保存你的金句收藏</text>
+      <text wx:if="{{!isLogin}}" class="user-tip">完善头像昵称，展示你的阅读身份</text>
     </view>
     <view wx:if="{{!isLogin}}" class="login-area">
       <button class="login-btn" bindtap="onTapHeader">
-        <app-icon name="user" color="#F5EBD8" size="{{32}}"></app-icon>
-        <text>授权登录</text>
+        <app-icon name="user" color="#FFF9F4" size="{{32}}"></app-icon>
+        <text>完善资料</text>
       </button>
     </view>
+  </view>
+
+  <view class="reading-summary">
+    <view class="summary-head">
+      <view>
+        <text class="summary-title">阅读图鉴</text>
+        <text class="summary-streak">连续访问 {{streakCount}} 天</text>
+      </view>
+      <text class="summary-percent">{{collectionProgress.percent}}%</text>
+    </view>
+    <text class="summary-count">已收集 {{collectionProgress.collected}} / {{collectionProgress.total}}</text>
+    <view class="rarity-grid">
+      <view wx:for="{{rarityDistribution}}" wx:key="key" class="rarity-stat rarity-{{item.key}}">
+        <text class="rarity-name">{{item.label}}</text>
+        <text class="rarity-count">{{item.count}}{{item.total ? ' / ' + item.total : ''}}</text>
+      </view>
+    </view>
+    <view wx:if="{{summaryError}}" class="summary-retry" bindtap="onRetrySummary">加载失败，点此重试</view>
   </view>
 
   <!-- 功能入口 -->
@@ -20,26 +42,26 @@
     <view class="menu-item" bindtap="onFavorites" hover-class="menu-item-pressed">
       <view class="menu-left">
         <view class="menu-icon">
-          <app-icon name="star" color="#B78428" size="{{40}}"></app-icon>
+          <app-icon name="star" color="#A5762C" size="{{40}}"></app-icon>
         </view>
         <text class="menu-label">金句收藏</text>
       </view>
       <view class="menu-right">
         <text class="menu-count">{{favoriteCount}}条</text>
-        <app-icon name="chevronRight" color="#A79D96" size="{{30}}"></app-icon>
+        <app-icon name="chevronRight" color="#6E5F55" size="{{30}}"></app-icon>
       </view>
     </view>
 
     <view class="menu-item" bindtap="onLikes" hover-class="menu-item-pressed">
       <view class="menu-left">
         <view class="menu-icon">
-          <app-icon name="heart" color="#A04D43" size="{{40}}" filled="{{true}}"></app-icon>
+          <app-icon name="heart" color="#CF3A32" size="{{40}}" filled="{{true}}"></app-icon>
         </view>
         <text class="menu-label">点赞记录</text>
       </view>
       <view class="menu-right">
         <text class="menu-count">{{likeCount}}条</text>
-        <app-icon name="chevronRight" color="#A79D96" size="{{30}}"></app-icon>
+        <app-icon name="chevronRight" color="#6E5F55" size="{{30}}"></app-icon>
       </view>
     </view>
   </view>

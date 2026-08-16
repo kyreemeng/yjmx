@@ -1,6 +1,8 @@
 const userService = require('../../services/user-service');
 const reactionService = require('../../services/reaction-service');
+const quoteService = require('../../services/quote-service');
 const { showToast } = require('../../utils/util');
+const { getRarity } = require('../../utils/rarity');
 
 Page({
   data: {
@@ -9,7 +11,10 @@ Page({
     favoriteCount: 0,
     likeCount: 0,
     showLoginModal: false,
-    pendingRoute: '',
+    streakCount: 0,
+    collectionProgress: { collected: 0, total: 0, percent: 0 },
+    rarityDistribution: [],
+    summaryError: false,
   },
 
   onLoad() {
@@ -23,6 +28,7 @@ Page({
     this.refreshUserInfo();
     // 收藏 / 点赞数量来自云端，与自定义登录态无关
     this.loadCounts();
+    this.loadReadingSummary();
   },
 
   refreshUserInfo() {
@@ -46,20 +52,50 @@ Page({
     }
   },
 
+  async loadReadingSummary() {
+    try {
+      const [streak, progress, quotes] = await Promise.all([
+        quoteService.updateVisitStreak(),
+        quoteService.getCollectionProgress(),
+        quoteService.loadQuotes(false),
+      ]);
+      const distribution = (progress && (progress.rarityDistribution || progress.distribution)) || {};
+      const labels = { legendary: '传世', epic: '精粹', rare: '佳句', common: '摘录' };
+      const rarityDistribution = Object.keys(labels).map((key) => {
+        const value = distribution[key];
+        const count = Number(value && (value.collected || value.count || value)) || 0;
+        const total = Number(value && value.total)
+          || quotes.filter((quote) => getRarity(quote.id).key === key).length;
+        return { key, label: labels[key], count, total };
+      });
+      const normalizedProgress = progress ? {
+        ...progress,
+        collected: Number(progress.collected != null ? progress.collected : (progress.seen || progress.seenCount)) || 0,
+      } : this.data.collectionProgress;
+      this.setData({
+        streakCount: Number(streak && (streak.count || streak.days || streak)) || 0,
+        collectionProgress: normalizedProgress,
+        rarityDistribution,
+        summaryError: false,
+      });
+    } catch (err) {
+      this.setData({ summaryError: true });
+    }
+  },
+
+  onRetrySummary() {
+    this.loadReadingSummary();
+    this.loadCounts();
+  },
+
   onTapHeader() {
     if (!this.data.isLogin) {
       this.setData({ showLoginModal: true });
     }
   },
 
+  // 收藏已走云端 openid，无需登录即可查看与管理
   onFavorites() {
-    if (!this.data.isLogin) {
-      this.setData({
-        showLoginModal: true,
-        pendingRoute: '/pages/favorites/favorites',
-      });
-      return;
-    }
     wx.navigateTo({ url: '/pages/favorites/favorites' });
   },
 
@@ -84,21 +120,17 @@ Page({
   onLoginSuccess(e) {
     const userInfo = e.detail.userInfo;
     userService.login(userInfo);
-    const pendingRoute = this.data.pendingRoute;
-    this.setData({ showLoginModal: false, pendingRoute: '' });
+    this.setData({ showLoginModal: false });
     this.refreshUserInfo();
-    showToast('登录成功', 'success');
-    if (pendingRoute) {
-      wx.navigateTo({ url: pendingRoute });
-    }
+    showToast('资料已保存', 'success');
   },
 
   onLoginFail() {
-    this.setData({ showLoginModal: false, pendingRoute: '' });
-    showToast('授权后可使用完整功能');
+    this.setData({ showLoginModal: false });
+    showToast('可稍后完善资料');
   },
 
   onCloseLoginModal() {
-    this.setData({ showLoginModal: false, pendingRoute: '' });
+    this.setData({ showLoginModal: false });
   },
 });

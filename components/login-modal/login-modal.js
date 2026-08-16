@@ -27,7 +27,20 @@ Component({
     },
 
     onOverlayTap() {
-      this.triggerEvent('close');
+      // 已填写昵称时误触遮罩需二次确认，避免丢失输入
+      if (String(this.data.nickName || '').trim()) {
+        wx.showModal({
+          title: '放弃编辑？',
+          content: '已填写的资料将不会保存',
+          confirmText: '放弃',
+          cancelText: '继续填写',
+          success: (res) => {
+            if (res.confirm) this.triggerEvent('close');
+          },
+        });
+      } else {
+        this.triggerEvent('close');
+      }
     },
 
     preventBubble() {

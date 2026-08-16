@@ -1,6 +1,10 @@
+<nav-bar title="金句排行"></nav-bar>
 <view class="container">
   <view class="rank-header">
-    <view class="rank-seal"><text>榜</text></view>
+    <view class="rank-seal">
+      <view class="seal-inner"><text>榜</text></view>
+      <view class="seal-dot"></view>
+    </view>
     <view>
       <text class="rank-title">金句排行</text>
       <text class="rank-subtitle">大家正在读的思想火花</text>
@@ -58,7 +62,7 @@
             <view class="rank-meta">
               <text class="rank-source">{{item.source}}</text>
               <view class="rank-count">
-                <app-icon name="heart" color="#A04D43" size="{{26}}" filled="{{true}}"></app-icon>
+                <app-icon name="heart" color="#CF3A32" size="{{26}}" filled="{{true}}"></app-icon>
                 <text>{{item.countText}}</text>
               </view>
             </view>
@@ -71,7 +75,7 @@
           >
             <app-icon
               name="star"
-              color="{{item.favorited ? '#B78428' : '#81766F'}}"
+              color="{{item.favorited ? '#A5762C' : '#6E5F55'}}"
               size="{{40}}"
               filled="{{item.favorited}}"
             ></app-icon>
@@ -80,9 +84,14 @@
       </view>
 
       <empty-state
-        wx:if="{{!loading && list.length === 0}}"
+        wx:if="{{!loading && list.length === 0 && !error}}"
         type="rank"
         bind:action="onGoHome"
+      ></empty-state>
+      <empty-state
+        wx:if="{{!loading && list.length === 0 && error}}"
+        type="error"
+        bind:action="onRetry"
       ></empty-state>
     </scroll-view>
   </template>
@@ -90,13 +99,13 @@
   <!-- 排行列表 Swiper -->
   <swiper class="rank-swiper" current="{{activeTabIndex}}" bindchange="onSwiperChange">
     <swiper-item>
-      <template is="rankList" data="{{type: 'today', list: rankLists.today, loading: loading.today, refreshing: refreshing.today}}"></template>
+      <template is="rankList" data="{{type: 'today', list: rankLists.today, loading: loading.today, refreshing: refreshing.today, error: error.today}}"></template>
     </swiper-item>
     <swiper-item>
-      <template is="rankList" data="{{type: 'week', list: rankLists.week, loading: loading.week, refreshing: refreshing.week}}"></template>
+      <template is="rankList" data="{{type: 'week', list: rankLists.week, loading: loading.week, refreshing: refreshing.week, error: error.week}}"></template>
     </swiper-item>
     <swiper-item>
-      <template is="rankList" data="{{type: 'month', list: rankLists.month, loading: loading.month, refreshing: refreshing.month}}"></template>
+      <template is="rankList" data="{{type: 'month', list: rankLists.month, loading: loading.month, refreshing: refreshing.month, error: error.month}}"></template>
     </swiper-item>
   </swiper>
 </view>

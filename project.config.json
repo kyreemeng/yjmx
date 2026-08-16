@@ -32,7 +32,7 @@
   },
   "compileType": "miniprogram",
   "cloudfunctionRoot": "cloudfunctions/",
-  "libVersion": "3.17.0",
+  "libVersion": "3.5.5",
   "appid": "wxc2c6977a582395ee",
   "projectname": "yjmx",
   "condition": {},

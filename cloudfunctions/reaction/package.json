@@ -1,7 +1,7 @@
 {
   "name": "reaction",
   "version": "1.0.0",
-  "description": "收藏与点赞云端同步云函数",
+  "description": "收藏、点赞与排行云端同步云函数",
   "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "~2.6.3"

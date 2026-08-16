@@ -1,19 +1,26 @@
+/* 贴底毛玻璃 Tab：内容从其下方滚动（iOS 系统感） */
 .tab-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 100rpx;
-  background: rgba(28, 14, 8, 0.96);
-  border-top: 1rpx solid rgba(183, 132, 40, 0.24);
-  box-shadow: 0 -8rpx 28rpx rgba(0, 0, 0, 0.22);
+  padding: 0;
+  pointer-events: none;
   z-index: 20;
 }
 
 .tab-bar-wrap {
+  pointer-events: auto;
   display: flex;
-  height: 100rpx;
   align-items: center;
+  height: 98rpx;
+  padding: 6rpx 8rpx 0;
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.88) 100%);
+  backdrop-filter: blur(40rpx) saturate(180%);
+  -webkit-backdrop-filter: blur(40rpx) saturate(180%);
+  border-top: 1rpx solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 -1rpx 0 rgba(120, 90, 60, 0.06);
 }
 
 .tab-item {
@@ -22,29 +29,45 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100rpx;
-  transition: transform 180ms ease, opacity 180ms ease;
+  height: 88rpx;
+  border-radius: 16rpx;
+  position: relative;
+  transition: transform 100ms ease-out, opacity 100ms ease-out;
+}
+
+.tab-item.active {
+  background: transparent;
 }
 
 .tab-icon {
-  width: 40rpx;
-  height: 40rpx;
-  margin-bottom: 4rpx;
+  width: 44rpx;
+  height: 44rpx;
+  margin-bottom: 2rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tab-text {
   font-size: 22rpx;
-  line-height: 30rpx;
-  color: rgba(245, 235, 216, 0.52);
+  line-height: 28rpx;
+  color: #6E5F55;
+  font-weight: 500;
+  letter-spacing: 0.2rpx;
 }
 
-.tab-item.active .tab-icon,
 .tab-item.active .tab-text {
-  color: #E6BE66;
+  color: #CF3A32;
   font-weight: 600;
 }
 
 .tab-item:active {
-  transform: scale(0.96);
-  opacity: 0.82;
+  transform: scale(0.94);
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-item {
+    transition: none;
+  }
 }

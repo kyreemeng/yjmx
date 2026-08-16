@@ -86,10 +86,10 @@ Component({
       }, 200);
     },
 
-    onShare() {
+    onPoster() {
       if (this.data.loading || this.data.animating) return;
-      this.setData({ animating: true, lastAction: 'share' });
-      this.triggerEvent('share', { quote: this.data.quote });
+      this.setData({ animating: true, lastAction: 'poster' });
+      this.triggerEvent('poster', { quote: this.data.quote });
       this._actionTimer = setTimeout(() => {
         this.setData({ animating: false });
       }, 200);

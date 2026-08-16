@@ -10,8 +10,10 @@
   width: 128rpx;
   height: 128rpx;
   margin-bottom: 28rpx;
-  border-radius: 50%;
-  background: #FFF4E7;
+  border-radius: 40rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.5) 100%);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 12rpx 30rpx rgba(120, 90, 60, 0.14), inset 0 1rpx 0 rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,29 +22,37 @@
 .empty-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: #2C1810;
+  color: #241A15;
   margin-bottom: 12rpx;
 }
 
 .empty-desc {
   font-size: 28rpx;
-  color: #8B7355;
+  color: #6E5F55;
   text-align: center;
   line-height: 1.5;
   margin-bottom: 40rpx;
 }
 
 .empty-btn {
-  background: #FFFFFF;
-  color: #C41E1E;
-  border: 1rpx solid #C41E1E;
-  border-radius: 16rpx;
-  padding: 16rpx 48rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.6) 100%);
+  backdrop-filter: blur(20rpx) saturate(160%);
+  -webkit-backdrop-filter: blur(20rpx) saturate(160%);
+  color: #CF3A32;
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  border-radius: 24rpx;
+  padding: 24rpx 48rpx;
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 30rpx;
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: 0 10rpx 24rpx rgba(120, 90, 60, 0.14);
 }
 
 .empty-btn:active {
-  background: #FFF8F0;
-  transform: scale(0.98);
+  background: rgba(207, 58, 50, 0.08);
+  transform: scale(0.97);
+  transition: transform 100ms ease-out;
 }

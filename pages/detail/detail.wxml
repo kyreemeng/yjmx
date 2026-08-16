@@ -1,3 +1,4 @@
+<nav-bar title="金句详情" back="{{true}}"></nav-bar>
 <view class="container">
   <view class="detail-header">
     <text class="detail-from">来自「{{from}}」</text>
@@ -11,14 +12,42 @@
     showRefresh="{{false}}"
     bind:like="onLike"
     bind:favorite="onFavorite"
-    bind:share="onShare"
+    bind:poster="onPoster"
   ></quote-card>
+
+  <view wx:if="{{loading && !quote}}" class="detail-loading">正在加载金句...</view>
+
+  <!-- 金句不存在 / 已下线：友好空状态，直接回首页 -->
+  <empty-state
+    wx:if="{{notFound}}"
+    type="error"
+    title="金句不存在"
+    description="这条金句可能已下线，去首页看看其它句子吧"
+    buttonText="回到首页"
+    bind:action="onGoHome"
+  ></empty-state>
+  <empty-state
+    wx:if="{{loadError && !quote}}"
+    type="error"
+    title="加载失败"
+    description="网络恢复后可重新加载"
+    buttonText="重试"
+    bind:action="onRetry"
+  ></empty-state>
 
   <share-poster
     wx:if="{{showSharePoster}}"
     visible="{{showSharePoster}}"
     quote="{{quote}}"
+    quote-id="{{quote.id}}"
     bind:close="onCloseSharePoster"
+    bind:generated="onPosterGenerated"
     bind:share="onPosterShare"
   ></share-poster>
+
+  <!-- 分享封面自动生成（离屏，好友分享 + 朋友圈双比例） -->
+  <share-cover
+    quote="{{quote}}"
+    bind:coverready="onCoverReady"
+  ></share-cover>
 </view>

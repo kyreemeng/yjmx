@@ -1,7 +1,8 @@
 {
   "usingComponents": {
-    "login-modal": "/components/login-modal/login-modal",
+    "nav-bar": "/components/nav-bar/nav-bar",
     "share-poster": "/components/share-poster/share-poster",
+    "share-cover": "/components/share-cover/share-cover",
     "empty-state": "/components/empty-state/empty-state"
   },
   "enablePullDownRefresh": true,
