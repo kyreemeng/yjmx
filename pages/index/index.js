@@ -37,9 +37,18 @@ Page({
     streakCount: 0,
     collectionProgress: { collected: 0, total: 0, percent: 0 },
     loadError: false,
+    compact: false,
+    containerStyle: '',
+    actionBarStyle: '',
+    cardStyle: '',
   },
 
   async onLoad(options = {}) {
+    this.initViewportLayout();
+    this._onWindowResize = () => this.initViewportLayout();
+    if (typeof wx.onWindowResize === 'function') {
+      wx.onWindowResize(this._onWindowResize);
+    }
     if (options.id || options.qid || options.from || options.scene) {
       captureShareEntry(options, getApp().globalData.launchOptions);
     }
@@ -56,12 +65,92 @@ Page({
     });
   },
 
+  onUnload() {
+    this._clearAllTimers();
+    if (this._onWindowResize && typeof wx.offWindowResize === 'function') {
+      wx.offWindowResize(this._onWindowResize);
+    }
+  },
+
   onShow() {
+    this.initViewportLayout();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 });
     }
     if (this.data.quote) {
       this.syncInteractionState(this.data.quote.id);
+    }
+  },
+
+  // 内容区钉在顶栏下；操作栏单独 fixed 钉在自定义 Tab 上方（与 tab-bar 同一套安全区算法）
+  initViewportLayout() {
+    try {
+      const win = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const windowWidth = win.windowWidth || 375;
+      const windowHeight = win.windowHeight || 667;
+      const screenHeight = win.screenHeight || windowHeight;
+      const statusBarHeight = win.statusBarHeight || 20;
+      let navBarHeight = 44;
+      try {
+        const rect = wx.getMenuButtonBoundingClientRect
+          ? wx.getMenuButtonBoundingClientRect()
+          : null;
+        if (rect && rect.top && rect.height) {
+          navBarHeight = (rect.top - statusBarHeight) * 2 + rect.height;
+        }
+      } catch (err) {}
+
+      const pxToRpx = 750 / windowWidth;
+      // 必须与 custom-tab-bar 一致：用 screenHeight，不能用 windowHeight
+      const safeBottom = win.safeArea
+        ? Math.max(0, screenHeight - win.safeArea.bottom)
+        : (win.safeAreaInsets && win.safeAreaInsets.bottom) || 0;
+      const tabContentPx = 98 / pxToRpx;
+      const tabTotalPx = Math.ceil(tabContentPx + safeBottom);
+      const actionHeightPx = Math.ceil(108 / pxToRpx);
+      const actionGapPx = 10;
+      const actionBottomPx = tabTotalPx + actionGapPx;
+      const topPx = statusBarHeight + navBarHeight;
+      // 容器铺到 Tab 顶，操作栏区域同样铺 aurora，不再露 page 白底
+      const containerBottomPx = tabTotalPx;
+      const contentHeightPx = Math.max(
+        360,
+        windowHeight - topPx - tabTotalPx - actionHeightPx - actionGapPx
+      );
+      const availableRpx = contentHeightPx * pxToRpx;
+      const compact = availableRpx < 1080 || windowHeight < 720;
+      const brandRpx = compact ? 118 : 156;
+      const stageRpx = Math.max(340, availableRpx - brandRpx);
+      const cardHeight = Math.round(Math.min(620, Math.max(360, stageRpx - 8)));
+      const cardWidth = Math.round(Math.min(500, cardHeight * (560 / 720)));
+
+      this.setData({
+        compact,
+        containerStyle: [
+          'position:fixed',
+          `top:${Math.round(topPx)}px`,
+          'left:0',
+          'right:0',
+          `bottom:${Math.round(containerBottomPx)}px`,
+          'height:auto',
+          `padding-bottom:${Math.round(actionHeightPx + actionGapPx)}px`,
+        ].join(';') + ';',
+        actionBarStyle: [
+          'position:fixed',
+          'left:50%',
+          'transform:translateX(-50%)',
+          `bottom:${Math.round(actionBottomPx)}px`,
+          'z-index:15',
+        ].join(';') + ';',
+        cardStyle: `width:${cardWidth}rpx;height:${cardHeight}rpx;`,
+      });
+    } catch (err) {
+      this.setData({
+        compact: true,
+        containerStyle: 'position:fixed;top:88px;left:0;right:0;bottom:90px;height:auto;padding-bottom:64px;',
+        actionBarStyle: 'position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:15;',
+        cardStyle: 'width:440rpx;height:520rpx;',
+      });
     }
   },
 
@@ -76,10 +165,6 @@ Page({
       this.startDrawSequence();
       wx.stopPullDownRefresh();
     });
-  },
-
-  onUnload() {
-    this._clearAllTimers();
   },
 
   _clearAllTimers() {

@@ -1,14 +1,37 @@
-/* ============ 容器 & 背景（浅色液玻璃 · 多彩背景透出磨砂玻璃） ============ */
-.container {
-  min-height: 100vh;
+/* ============ 全屏 aurora，避免操作栏区域露出 page 纯色白底 ============ */
+.page-aurora {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
   background: var(--aurora-bg);
+}
+
+/* ============ 容器：品牌 + 卡牌；底边贴 Tab，操作栏浮在其上 ============ */
+/* 显式覆盖 app.wxss .container 的 min-height/padding */
+.container {
+  position: fixed;
+  top: 88px;
+  left: 0;
+  right: 0;
+  bottom: 90px;
+  width: auto;
+  height: auto;
+  min-height: 0 !important;
+  max-height: none;
+  box-sizing: border-box;
+  background: transparent;
   color: #2A1E18;
-  padding-bottom: calc(150rpx + env(safe-area-inset-bottom));
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
   overflow: hidden;
+  z-index: 1;
 }
 
 /* ============ 背景粒子（暖金光尘，轻量化） ============ */
@@ -53,22 +76,23 @@
 
 /* ============ 品牌区 ============ */
 .brand-area {
-  padding-top: 64rpx;
-  padding-bottom: 10rpx;
+  flex-shrink: 0;
+  padding-top: 12rpx;
+  padding-bottom: 4rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  z-index: 2;
+  z-index: 6;
 }
 
 /* Logo（方案 C · 毛选印记）：玻璃 squircle + 红印章竖排「毛选」+ 金色落款点 */
 .brand-stamp {
   position: relative;
-  width: 96rpx;
-  height: 96rpx;
-  margin-bottom: 18rpx;
-  border-radius: 22rpx;
+  width: 72rpx;
+  height: 72rpx;
+  margin-bottom: 8rpx;
+  border-radius: 18rpx;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.54) 100%);
   border: 1rpx solid rgba(255, 255, 255, 0.8);
   box-shadow:
@@ -80,10 +104,10 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 68rpx;
-  height: 68rpx;
+  width: 52rpx;
+  height: 52rpx;
   transform: translate(-50%, -50%);
-  border-radius: 15rpx;
+  border-radius: 12rpx;
   background: linear-gradient(135deg, #D8483E 0%, #CF3A32 55%, #AD2822 100%);
   border: 1rpx solid rgba(255, 255, 255, 0.35);
   box-shadow:
@@ -97,7 +121,7 @@
 }
 
 .stamp-char {
-  font-size: 27rpx;
+  font-size: 22rpx;
   font-weight: 800;
   color: #FFF9F4;
   font-family: 'Noto Serif CJK SC', 'Songti SC', serif;
@@ -105,33 +129,33 @@
 
 .stamp-dot {
   position: absolute;
-  right: 8rpx;
-  bottom: 8rpx;
-  width: 7rpx;
-  height: 7rpx;
+  right: 6rpx;
+  bottom: 6rpx;
+  width: 6rpx;
+  height: 6rpx;
   border-radius: 2rpx;
   background: linear-gradient(135deg, #D8AC5C 0%, #A5762C 100%);
   box-shadow: 0 0 6rpx rgba(201, 148, 63, 0.6);
 }
 
 .brand-title {
-  font-size: 48rpx;
+  font-size: 40rpx;
   font-weight: 800;
   color: #241A15;
-  letter-spacing: 12rpx;
-  margin-bottom: 14rpx;
+  letter-spacing: 10rpx;
+  margin-bottom: 6rpx;
   font-family: 'Noto Serif CJK SC', 'Songti SC', serif;
 }
 
 .brand-divider {
   display: flex;
   align-items: center;
-  gap: 12rpx;
-  margin-bottom: 10rpx;
+  gap: 10rpx;
+  margin-bottom: 4rpx;
 }
 
 .divider-line {
-  width: 50rpx;
+  width: 40rpx;
   height: 2rpx;
   background: linear-gradient(90deg, transparent, #C9943F, transparent);
 }
@@ -145,27 +169,28 @@
 }
 
 .brand-slogan {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #7A6A5C;
   letter-spacing: 2rpx;
   font-weight: 500;
 }
 
 .daily-summary {
-  min-height: 88rpx;
+  margin-top: 8rpx;
+  min-height: 48rpx;
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 12rpx;
 }
 
 .daily-label,
 .streak-label {
-  min-height: 48rpx;
-  padding: 0 18rpx;
-  border-radius: 24rpx;
+  min-height: 44rpx;
+  padding: 0 16rpx;
+  border-radius: 22rpx;
   display: flex;
   align-items: center;
-  font-size: 24rpx;
+  font-size: 22rpx;
   font-weight: 600;
   color: #6E5F55;
   background: rgba(255, 255, 255, 0.62);
@@ -176,38 +201,101 @@
   color: #AD2822;
 }
 
+/* 矮屏 / 揭卡后进一步压缩品牌区，把高度留给卡牌与操作栏 */
+.container.is-compact .brand-stamp,
+.container.is-revealed .brand-stamp {
+  width: 56rpx;
+  height: 56rpx;
+  margin-bottom: 4rpx;
+  border-radius: 14rpx;
+}
+
+.container.is-compact .stamp-seal,
+.container.is-revealed .stamp-seal {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.container.is-compact .stamp-char,
+.container.is-revealed .stamp-char {
+  font-size: 18rpx;
+}
+
+.container.is-compact .brand-title,
+.container.is-revealed .brand-title {
+  font-size: 34rpx;
+  letter-spacing: 8rpx;
+  margin-bottom: 2rpx;
+}
+
+.container.is-compact .brand-slogan,
+.container.is-revealed .brand-slogan {
+  display: none;
+}
+
+.container.is-compact .brand-divider,
+.container.is-revealed .brand-divider {
+  display: none;
+}
+
+.container.is-compact .daily-summary,
+.container.is-revealed .daily-summary {
+  margin-top: 4rpx;
+  min-height: 40rpx;
+}
+
 /* ============ 礼盒区 ============ */
 .box-area {
   width: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   position: relative;
   z-index: 2;
-  padding-top: 48rpx;
-  min-height: 620rpx;
+  padding-top: 12rpx;
 }
 
 .box-area.state-opening,
 .box-area.state-revealed {
-  min-height: 800rpx;
   padding-top: 0;
+  justify-content: flex-start;
 }
 
 /* ---- 中国风锦盒（天地盖 · 描金 · 方印） ---- */
 .box-wrap {
-  width: 340rpx;
-  height: 340rpx;
+  width: 280rpx;
+  height: 280rpx;
   position: relative;
   transition: transform 200ms ease, opacity 360ms ease;
 }
 
+.container.is-compact .box-wrap {
+  width: 240rpx;
+  height: 240rpx;
+}
+
 .box-area.state-opening .box-wrap,
 .box-area.state-revealed .box-wrap {
-  transform: translateY(-48rpx) scale(0.7);
-  opacity: 0.35;
+  position: absolute;
+  top: 8rpx;
+  left: 50%;
+  width: 280rpx;
+  height: 280rpx;
+  margin-left: -140rpx;
+  transform: translateY(-20rpx) scale(0.45);
+  opacity: 0.22;
   pointer-events: none;
   transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 360ms ease;
+}
+
+.container.is-compact .box-area.state-opening .box-wrap,
+.container.is-compact .box-area.state-revealed .box-wrap {
+  width: 240rpx;
+  height: 240rpx;
+  margin-left: -120rpx;
 }
 
 .box-pressed {
@@ -234,8 +322,8 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 304rpx;
-  height: 108rpx;
+  width: 86%;
+  height: 32%;
   z-index: 6;
   transition: transform 800ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 600ms ease 400ms;
 }
@@ -335,11 +423,11 @@
 /* 地盒 */
 .box-body {
   position: absolute;
-  top: 96rpx;
+  top: 28%;
   left: 50%;
   transform: translateX(-50%);
-  width: 300rpx;
-  height: 228rpx;
+  width: 88%;
+  height: 67%;
   z-index: 3;
 }
 
@@ -410,7 +498,7 @@
 /* 待拆提示 */
 .box-hint {
   position: absolute;
-  bottom: -56rpx;
+  bottom: -44rpx;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -427,11 +515,11 @@
 /* ============ 开盒柔光柱 ============ */
 .light-beam {
   position: absolute;
-  top: 200rpx;
+  top: 120rpx;
   left: 50%;
   transform: translateX(-50%);
-  width: 160rpx;
-  height: 420rpx;
+  width: 140rpx;
+  height: 320rpx;
   background: linear-gradient(180deg,
     rgba(255, 220, 170, 0.28) 0%,
     rgba(201, 148, 63, 0.1) 40%,
@@ -470,9 +558,19 @@
 .box-area.state-opening .card-stage,
 .box-area.state-revealed .card-stage {
   position: absolute;
-  top: 28rpx;
+  top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* 舞台内垂直居中，底部多留空形成「居中偏上」，避免顶到品牌区 */
+  justify-content: center;
+  padding-top: 0;
+  padding-bottom: 56rpx;
+  box-sizing: border-box;
 }
 
 .card-stage.card-rising {
@@ -484,8 +582,8 @@
 }
 
 @keyframes cardRise {
-  0% { opacity: 0; transform: translateY(120rpx) scale(0.6); }
-  60% { opacity: 1; transform: translateY(-10rpx) scale(1.05); }
+  0% { opacity: 0; transform: translateY(80rpx) scale(0.6); }
+  60% { opacity: 1; transform: translateY(-6rpx) scale(1.03); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -496,11 +594,13 @@
 
 /* 3D 翻转容器 */
 .card-3d {
-  width: 560rpx;
-  height: 720rpx;
+  width: 540rpx;
+  height: 680rpx;
+  max-width: 86vw;
   position: relative;
   transform-style: preserve-3d;
   transition: transform 800ms cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .card-3d.card-flipped {
@@ -647,7 +747,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 28rpx 32rpx 0;
+  padding: 22rpx 28rpx 0;
 }
 
 /* 稀有度标签 */
@@ -697,41 +797,47 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20rpx 40rpx;
+  padding: 12rpx 32rpx;
   position: relative;
+  min-height: 0;
 }
 
 .card-quote-mark-top {
-  font-size: 56rpx;
+  font-size: 44rpx;
   color: rgba(207, 58, 50, 0.3);
   font-family: Georgia, 'Songti SC', serif;
   line-height: 1;
-  margin-bottom: 12rpx;
+  margin-bottom: 6rpx;
   align-self: flex-start;
 }
 
 .card-quote-mark-bottom {
-  font-size: 56rpx;
+  font-size: 44rpx;
   color: rgba(207, 58, 50, 0.3);
   font-family: Georgia, 'Songti SC', serif;
   line-height: 1;
-  margin-top: 12rpx;
+  margin-top: 6rpx;
   align-self: flex-end;
 }
 
 .card-quote-text {
-  font-size: 36rpx;
-  line-height: 1.65;
+  font-size: 32rpx;
+  line-height: 1.55;
   font-weight: 600;
   color: #241A15;
   text-align: center;
   font-family: 'Noto Serif CJK SC', 'Songti SC', 'PingFang SC', serif;
-  letter-spacing: 2rpx;
+  letter-spacing: 1rpx;
+}
+
+.container.is-compact .card-quote-text {
+  font-size: 30rpx;
+  line-height: 1.5;
 }
 
 /* 卡面底部 */
 .card-footer {
-  padding: 0 32rpx 28rpx;
+  padding: 0 28rpx 22rpx;
 }
 
 .card-source-row {
@@ -739,7 +845,15 @@
   align-items: center;
   justify-content: center;
   gap: 14rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 12rpx;
+}
+
+.container.is-compact .card-source-row {
+  margin-bottom: 8rpx;
+}
+
+.container.is-compact .card-footer {
+  padding: 0 24rpx 16rpx;
 }
 
 .card-source-line {
@@ -794,13 +908,14 @@
 
 /* ============ 加载骨架 ============ */
 .skeleton-card {
-  width: 560rpx;
-  height: 720rpx;
-  margin-top: 20rpx;
+  width: 540rpx;
+  height: 680rpx;
+  margin-top: 12rpx;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.34) 100%);
   border: 1rpx solid rgba(255, 255, 255, 0.6);
   border-radius: 28rpx;
-  padding: 60rpx 48rpx;
+  padding: 48rpx 40rpx;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -826,25 +941,29 @@
   align-self: flex-end;
 }
 
-/* ============ 操作栏（悬浮液玻璃胶囊） ============ */
+/* ============ 操作栏：独立 fixed，永远在自定义 Tab 上方 ============ */
 .action-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 96px;
+  z-index: 15;
   width: 690rpx;
-  margin-top: 28rpx;
-  padding: 12rpx;
+  box-sizing: border-box;
+  padding: 6rpx 8rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.58) 100%);
-  border: 1rpx solid rgba(255, 255, 255, 0.75);
-  border-radius: 40rpx;
+  /* 轻透玻璃，透出下方 aurora，避免实心白条 */
+  background: rgba(255, 248, 240, 0.28);
+  border: 1rpx solid rgba(255, 255, 255, 0.45);
+  border-radius: 36rpx;
   box-shadow:
-    0 20rpx 55rpx rgba(120, 90, 60, 0.2),
-    inset 0 1rpx 0 rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(30rpx) saturate(180%);
-  -webkit-backdrop-filter: blur(30rpx) saturate(180%);
+    0 8rpx 24rpx rgba(120, 90, 60, 0.08),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20rpx) saturate(140%);
+  -webkit-backdrop-filter: blur(20rpx) saturate(140%);
   transition: opacity 180ms ease;
-  position: relative;
-  z-index: 2;
 }
 
 .action-bar.is-disabled {
@@ -858,10 +977,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 88rpx;
-  padding: 8rpx 4rpx;
+  min-height: 76rpx;
+  padding: 4rpx 2rpx;
   border-radius: 28rpx;
   transition: transform 160ms ease, opacity 160ms ease, background-color 160ms ease;
+}
+
+.action-bar.is-compact .action-btn {
+  min-height: 68rpx;
+}
+
+.action-bar.is-compact .action-label {
+  font-size: 20rpx;
+  line-height: 26rpx;
 }
 
 button.share-btn {

@@ -5,8 +5,9 @@
     "share-cover": "/components/share-cover/share-cover",
     "empty-state": "/components/empty-state/empty-state"
   },
-  "enablePullDownRefresh": true,
+  "enablePullDownRefresh": false,
   "enableShareTimeline": true,
+  "disableScroll": true,
   "backgroundTextStyle": "dark",
   "navigationBarTitleText": "一句毛选"
 }

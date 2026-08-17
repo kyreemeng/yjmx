@@ -15,7 +15,8 @@ module.exports = { num: num };
 <!-- 分享弹层时锁住页面 overflow，减少滚动/下拉穿透 -->
 <page-meta page-style="{{showSharePoster ? 'overflow: hidden;' : ''}}" />
 <nav-bar title="一句毛选"></nav-bar>
-<view class="container">
+<view class="page-aurora"></view>
+<view class="container {{compact ? 'is-compact' : ''}} {{drawState === 'revealed' ? 'is-revealed' : ''}}" style="{{containerStyle}}">
   <!-- 背景光效粒子 -->
   <view wx:if="{{drawState !== 'idle'}}" class="bg-particles">
     <view wx:for="{{12}}" wx:key="*this" class="particle particle-{{index}}" style="animation-delay: {{index * 60}}ms;"></view>
@@ -50,7 +51,6 @@ module.exports = { num: num };
       bindtap="onOpenBox"
       hover-class="box-pressed"
     >
-      <!-- 中国风锦盒：天地盖 + 描金 + 方印 -->
       <view class="box-lid {{drawState !== 'idle' ? 'lid-fly' : ''}}">
         <view class="lid-face">
           <view class="gold-frame"></view>
@@ -64,7 +64,6 @@ module.exports = { num: num };
         </view>
       </view>
 
-      <!-- 盒身 -->
       <view class="box-body">
         <view class="box-face">
           <view class="gold-frame body-frame"></view>
@@ -82,16 +81,13 @@ module.exports = { num: num };
       </view>
     </view>
 
-    <!-- 开盒柔光 -->
     <view wx:if="{{drawState === 'opening' || drawState === 'revealed'}}" class="light-beam {{drawState === 'revealed' ? 'beam-fade' : ''}}"></view>
 
-    <!-- 弹出的卡牌 -->
     <view
       wx:if="{{quote && drawState !== 'idle'}}"
       class="card-stage {{drawState === 'revealed' ? 'card-up' : 'card-rising'}}"
     >
-      <view class="card-3d {{drawState === 'revealed' ? 'card-flipped' : ''}}">
-        <!-- 卡背 -->
+      <view class="card-3d {{drawState === 'revealed' ? 'card-flipped' : ''}}" style="{{cardStyle}}">
         <view class="card-back">
           <view class="card-back-frame"></view>
           <view class="card-back-frame-inner"></view>
@@ -106,7 +102,6 @@ module.exports = { num: num };
           <view class="card-back-shine"></view>
         </view>
 
-        <!-- 卡面 -->
         <view class="card-front" bindtap="onTapCard">
           <view class="card-header">
             <view class="card-rarity {{rarityClass}}">{{rarityLabel}}</view>
@@ -139,7 +134,7 @@ module.exports = { num: num };
       </view>
     </view>
 
-    <view wx:if="{{loading && !quote && drawState === 'idle'}}" class="skeleton-card">
+    <view wx:if="{{loading && !quote && drawState === 'idle'}}" class="skeleton-card" style="{{cardStyle}}">
       <view class="skeleton-line long"></view>
       <view class="skeleton-line medium"></view>
       <view class="skeleton-line short"></view>
@@ -154,60 +149,62 @@ module.exports = { num: num };
       bind:action="onRetry"
     ></empty-state>
   </view>
+</view>
 
-  <!-- 操作栏 -->
-  <view wx:if="{{quote && drawState === 'revealed'}}" class="action-bar {{loading ? 'is-disabled' : ''}}">
-    <view class="action-btn refresh" catchtap="onRefresh" hover-class="action-hover">
-      <view class="action-icon-wrap {{animating && lastAction === 'refresh' ? 'animate-pop' : ''}}">
-        <app-icon name="refresh" color="#8A7564" size="{{44}}"></app-icon>
-      </view>
-      <text class="action-label">再拆一个</text>
+<!-- 操作栏独立 fixed，钉在自定义 Tab 正上方，避免被容器 overflow 裁切 -->
+<view
+  wx:if="{{quote && drawState === 'revealed'}}"
+  class="action-bar {{loading ? 'is-disabled' : ''}} {{compact ? 'is-compact' : ''}}"
+  style="{{actionBarStyle}}"
+>
+  <view class="action-btn refresh" catchtap="onRefresh" hover-class="action-hover">
+    <view class="action-icon-wrap {{animating && lastAction === 'refresh' ? 'animate-pop' : ''}}">
+      <app-icon name="refresh" color="#8A7564" size="{{40}}"></app-icon>
     </view>
-
-    <view class="action-btn like {{liked ? 'active' : ''}}" catchtap="onLike" hover-class="action-hover">
-      <view class="action-icon-wrap {{animating && lastAction === 'like' ? 'animate-pop' : ''}}">
-        <app-icon name="heart" color="{{liked ? '#CF3A32' : '#8A7564'}}" size="{{44}}" filled="{{liked}}"></app-icon>
-      </view>
-      <text class="action-label">{{liked ? '已赞' : '点赞'}} {{fmt.num(quote.stat.total || 0)}}</text>
-    </view>
-
-    <view class="action-btn favorite {{favorited ? 'active' : ''}}" catchtap="onFavorite" hover-class="action-hover">
-      <view class="action-icon-wrap {{animating && lastAction === 'favorite' ? 'animate-pop' : ''}}">
-        <app-icon name="star" color="{{favorited ? '#A5762C' : '#8A7564'}}" size="{{44}}" filled="{{favorited}}"></app-icon>
-      </view>
-      <text class="action-label">{{favorited ? '已收藏' : '收藏'}}</text>
-    </view>
-
-    <button class="action-btn share share-btn" open-type="share" hover-class="action-hover">
-      <view class="action-icon-wrap">
-        <app-icon name="share" color="#8A7564" size="{{44}}"></app-icon>
-      </view>
-      <text class="action-label">转发</text>
-    </button>
-
-    <view class="action-btn poster" catchtap="onPoster" hover-class="action-hover">
-      <view class="action-icon-wrap {{animating && lastAction === 'poster' ? 'animate-pop' : ''}}">
-        <app-icon name="poster" color="#8A7564" size="{{44}}"></app-icon>
-      </view>
-      <text class="action-label">海报</text>
-    </view>
+    <text class="action-label">再拆一个</text>
   </view>
 
-  <!-- 分享海报 -->
-  <share-poster
-    wx:if="{{showSharePoster}}"
-    visible="{{showSharePoster}}"
-    quote="{{quote}}"
-    quote-id="{{quote.id}}"
-    bind:close="onCloseSharePoster"
-    bind:generated="onPosterGenerated"
-    bind:share="onPosterShare"
-  ></share-poster>
+  <view class="action-btn like {{liked ? 'active' : ''}}" catchtap="onLike" hover-class="action-hover">
+    <view class="action-icon-wrap {{animating && lastAction === 'like' ? 'animate-pop' : ''}}">
+      <app-icon name="heart" color="{{liked ? '#CF3A32' : '#8A7564'}}" size="{{40}}" filled="{{liked}}"></app-icon>
+    </view>
+    <text class="action-label">{{liked ? '已赞' : '点赞'}} {{fmt.num(quote.stat.total || 0)}}</text>
+  </view>
 
-  <!-- 分享封面自动生成（离屏，好友分享 + 朋友圈双比例） -->
-  <share-cover
-    quote="{{quote}}"
-    rarity-label="{{rarityLabel}}"
-    bind:coverready="onCoverReady"
-  ></share-cover>
+  <view class="action-btn favorite {{favorited ? 'active' : ''}}" catchtap="onFavorite" hover-class="action-hover">
+    <view class="action-icon-wrap {{animating && lastAction === 'favorite' ? 'animate-pop' : ''}}">
+      <app-icon name="star" color="{{favorited ? '#A5762C' : '#8A7564'}}" size="{{40}}" filled="{{favorited}}"></app-icon>
+    </view>
+    <text class="action-label">{{favorited ? '已收藏' : '收藏'}}</text>
+  </view>
+
+  <button class="action-btn share share-btn" open-type="share" hover-class="action-hover">
+    <view class="action-icon-wrap">
+      <app-icon name="share" color="#8A7564" size="{{40}}"></app-icon>
+    </view>
+    <text class="action-label">转发</text>
+  </button>
+
+  <view class="action-btn poster" catchtap="onPoster" hover-class="action-hover">
+    <view class="action-icon-wrap {{animating && lastAction === 'poster' ? 'animate-pop' : ''}}">
+      <app-icon name="poster" color="#8A7564" size="{{40}}"></app-icon>
+    </view>
+    <text class="action-label">海报</text>
+  </view>
 </view>
+
+<share-poster
+  wx:if="{{showSharePoster}}"
+  visible="{{showSharePoster}}"
+  quote="{{quote}}"
+  quote-id="{{quote.id}}"
+  bind:close="onCloseSharePoster"
+  bind:generated="onPosterGenerated"
+  bind:share="onPosterShare"
+></share-poster>
+
+<share-cover
+  quote="{{quote}}"
+  rarity-label="{{rarityLabel}}"
+  bind:coverready="onCoverReady"
+></share-cover>

@@ -391,11 +391,17 @@ test('排行榜内层滚动区实现下拉刷新', () => {
 test('首页揭卡时将卡牌定位至舞台中心', () => {
   const template = read('pages/index/index.wxml');
   const style = read('pages/index/index.wxss');
+  const source = read('pages/index/index.js');
 
   assert.match(template, /class="box-area state-\{\{drawState\}\}"/);
   assert.match(style, /\.box-area\.state-revealed \.card-stage/);
   assert.match(style, /position: absolute;/);
-  assert.match(style, /top: 28rpx;/);
+  assert.match(style, /flex-direction: column;/);
+  assert.match(style, /align-items: center;/);
+  assert.match(source, /initViewportLayout/);
+  assert.match(template, /actionBarStyle/);
+  assert.match(source, /screenHeight - win\.safeArea\.bottom/);
+  assert.match(style, /\.action-bar\s*\{[\s\S]*?position:\s*fixed/);
 });
 
 test('首页打开后默认自动拆卡，无需手动点击', () => {
